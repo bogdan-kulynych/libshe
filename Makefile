@@ -3,7 +3,7 @@ SHELL              := /bin/bash
 CXX                := clang++
 CFLAGS             := -g -Wall -fPIC --std=c++11 -O3
 
-LIBS               := -lgmp -lboost_serialization -lboost_wserialization
+LIBS               := -lgmp -lboost_serialization
 TESTLIBS           := -lboost_unit_test_framework
 INC                := -Iinclude
 
@@ -19,7 +19,7 @@ TESTSOURCES        := $(wildcard $(TESTDIR)/*.cpp)
 LIBOBJECTS         := $(patsubst %.cpp,$(BUILDDIR)/%.o, $(LIBSOURCES))
 TESTOBJECTS        := $(patsubst %.cpp,$(BUILDDIR)/%.o, $(TESTSOURCES))
 
-TESTOPTS           := --log_level=error
+TESTOPTS           := --log_level=test_suite
 
 
 .PHONY: all
