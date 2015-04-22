@@ -8,7 +8,8 @@
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/split_free.hpp>
-#include <boost/multiprecision/gmp.hpp>
+
+#include <gmpxx.h>
 
 #include "random.hpp"
 
@@ -84,19 +85,19 @@ class HomomorphicArray : boost::equality_comparable<HomomorphicArray,
     HomomorphicArray& concat(const HomomorphicArray & other);
     const HomomorphicArray concat(const HomomorphicArray & other) const;
 
-    const std::vector<boost::multiprecision::mpz_int>& elements() const { return _elements; }
-    std::vector<boost::multiprecision::mpz_int>& elements() { return _elements; }
+    const std::vector<mpz_class>& elements() const { return _elements; }
+    std::vector<mpz_class>& elements() { return _elements; }
 
-    const boost::multiprecision::mpz_int & public_element() const { return *_public_element_ptr; }
+    const mpz_class & public_element() const { return *_public_element_ptr; }
 
  private:
-    HomomorphicArray(const std::vector<boost::multiprecision::mpz_int> array, const boost::multiprecision::mpz_int x0);
+    HomomorphicArray(const std::vector<mpz_class> array, const mpz_class x0);
 
-    std::vector<boost::multiprecision::mpz_int> _elements;
+    std::vector<mpz_class> _elements;
 
-    void set_public_element(const boost::multiprecision::mpz_int & x);
-    static std::set<boost::multiprecision::mpz_int> public_elements;
-    typename std::set<boost::multiprecision::mpz_int>::const_iterator _public_element_ptr;
+    void set_public_element(const mpz_class & x);
+    static std::set<mpz_class> public_elements;
+    typename std::set<mpz_class>::const_iterator _public_element_ptr;
 
  private:
     friend class boost::serialization::access;
@@ -112,7 +113,7 @@ class HomomorphicArray : boost::equality_comparable<HomomorphicArray,
     void load(Archive & ar, unsigned int const version)
     {
         ar & BOOST_SERIALIZATION_NVP(_elements);
-        boost::multiprecision::mpz_int x;
+        mpz_class x;
         ar & boost::serialization::make_nvp("_public_element", x);
     }
 
@@ -139,8 +140,8 @@ class CompressedCiphertext : boost::equality_comparable<CompressedCiphertext>
     // Expand ciphertext
     HomomorphicArray expand() const;
 
-    const std::vector<boost::multiprecision::mpz_int> & elements_deltas() const { return _elements_deltas; }
-    const boost::multiprecision::mpz_int & public_element_delta() const { return _public_element_delta; }
+    const std::vector<mpz_class> & elements_deltas() const { return _elements_deltas; }
+    const mpz_class & public_element_delta() const { return _public_element_delta; }
 
  private:
     CompressedCiphertext(const ParameterSet & params);
@@ -150,8 +151,8 @@ class CompressedCiphertext : boost::equality_comparable<CompressedCiphertext>
     void initialize_oracle() const;
     mutable std::unique_ptr<RandomOracle> _oracle;
 
-    std::vector<boost::multiprecision::mpz_int> _elements_deltas;
-    boost::multiprecision::mpz_int _public_element_delta;
+    std::vector<mpz_class> _elements_deltas;
+    mpz_class _public_element_delta;
 
  private:
     friend class boost::serialization::access;
@@ -189,7 +190,7 @@ class PrivateKey : boost::equality_comparable<PrivateKey>
     std::vector<bool> decrypt(const HomomorphicArray &) const;
 
     const ParameterSet & parameter_set() const { return _parameter_set; };
-    const boost::multiprecision::mpz_int & private_element() const { return _private_element; }
+    const mpz_class & private_element() const { return _private_element; }
 
     bool operator==(const PrivateKey &) const;
 
@@ -201,7 +202,7 @@ class PrivateKey : boost::equality_comparable<PrivateKey>
     mutable std::unique_ptr<RandomOracle> _oracle;
 
     PrivateKey& generate_values();
-    boost::multiprecision::mpz_int _private_element;
+    mpz_class _private_element;
 
  private:
     friend class boost::serialization::access;

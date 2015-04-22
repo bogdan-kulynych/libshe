@@ -3,8 +3,6 @@
 #include <utility>
 #include <map>
 
-#include <boost/multiprecision/gmp.hpp>
-
 #include <gmpxx.h>
 
 
@@ -16,9 +14,9 @@ class CSPRNG
  public:
     CSPRNG();
 
-    boost::multiprecision::mpz_int get_bits(unsigned int bits) const;
-    boost::multiprecision::mpz_int get_range_bits(unsigned int bits) const;
-    boost::multiprecision::mpz_int get_range(const boost::multiprecision::mpz_int & upper_bound) const;
+    mpz_class get_bits(unsigned int bits) const;
+    mpz_class get_range_bits(unsigned int bits) const;
+    mpz_class get_range(const mpz_class & upper_bound) const;
 
  private:
     mutable gmp_randclass _generator;
@@ -30,7 +28,7 @@ class RandomOracle
  public:
     RandomOracle(unsigned int size, unsigned int seed);
 
-    const boost::multiprecision::mpz_int & next() const;
+    const mpz_class & next() const;
     const void reset() const;
     static void reset_cache() { cached_values.clear(); }
 
@@ -42,7 +40,7 @@ class RandomOracle
     mutable size_t _current_value;
 
     using keys_t = std::pair<unsigned int, unsigned int>;
-    using values_t = std::vector<boost::multiprecision::mpz_int>;
+    using values_t = std::vector<mpz_class>;
 
     static std::map<keys_t, values_t> cached_values;
 };

@@ -11,8 +11,6 @@ using std::endl;
 using std::random_device;
 using std::vector;
 
-using boost::multiprecision::mpz_int;
-
 
 namespace she
 {
@@ -78,10 +76,9 @@ namespace she
         } while (_private_element % 2 == 0);
 
         // Generate random odd q from [1, 2^gamma / p)
-        const mpz_class max_gamma_bit_z = mpz_class(1) << _parameter_set.ciphertext_size_bits;
-        const mpz_int q_upper_bound = mpz_int(max_gamma_bit_z.get_mpz_t())
-                                   / _private_element;
-        mpz_int q;
+        const mpz_class q_upper_bound = (mpz_class(1) << _parameter_set.ciphertext_size_bits)
+                                      / _private_element;
+        mpz_class q;
         do {
             q = _generator->get_range(q_upper_bound);
         } while (q % 2 == 0);
@@ -102,16 +99,16 @@ namespace she
         CompressedCiphertext result(_parameter_set);
 
         // Generate compressed public element
-        const mpz_int & oracle_output = _oracle->next();
+        const mpz_class & oracle_output = _oracle->next();
         result._public_element_delta = oracle_output % _private_element;
 
         for (const bool m : bits)
         {
             // Choose random noise
-            const mpz_int r = _generator->get_range_bits(_parameter_set.noise_size_bits) + 1;
+            const mpz_class r = _generator->get_range_bits(_parameter_set.noise_size_bits) + 1;
 
             // Random oracle output
-            const mpz_int & oracle_output = _oracle->next();
+            const mpz_class & oracle_output = _oracle->next();
 
             // Add compressed ciphertext deltas
             result._elements_deltas.push_back(oracle_output % _private_element - 2*r - m);
@@ -125,9 +122,9 @@ namespace she
         _oracle->reset();
 
         vector<bool> result;
-        for (const mpz_int & element : array.elements())
+        for (const mpz_class & element : array.elements())
         {
-            const mpz_int m = element % _private_element % 2;
+            const mpz_class m = element % _private_element % 2;
             result.push_back(static_cast<bool>(m));
         }
         return result;
