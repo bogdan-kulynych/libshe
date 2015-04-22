@@ -25,7 +25,7 @@ BOOST_AUTO_TEST_CASE(generator_get_bits)
 {
     const CSPRNG generator;
 
-    const size_t iterations = 30;
+    const size_t iterations = 15;
     const int bits = 100;
 
     for (size_t i = 0; i < iterations; ++i) {
@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE(generator_get_range)
 {
     const CSPRNG generator;
 
-    const size_t iterations = 30;
+    const size_t iterations = 15;
     const int bits = 100;
     mpz_class upper_bound = mpz_class(1) << bits;
 

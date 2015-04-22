@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE(private_key_encryption_decryption)
     const auto params = ParameterSet::generate_parameter_set(62, 5, 42);
     const PrivateKey sk(params);
 
-    const size_t iterations = 30;
+    const size_t iterations = 15;
 
     const vector<bool> plaintext = {1, 0, 1, 0, 1, 1, 1, 0};
     unsigned int successful_recoveries = 0;
