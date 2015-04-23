@@ -12,11 +12,11 @@ namespace she
 class CSPRNG
 {
  public:
-    CSPRNG();
+    CSPRNG() noexcept;
 
-    mpz_class get_bits(unsigned int bits) const;
-    mpz_class get_range_bits(unsigned int bits) const;
-    mpz_class get_range(const mpz_class & upper_bound) const;
+    mpz_class get_bits(unsigned int bits) const noexcept;
+    mpz_class get_range_bits(unsigned int bits) const noexcept;
+    mpz_class get_range(const mpz_class & upper_bound) const noexcept;
 
  private:
     mutable gmp_randclass _generator;
@@ -28,9 +28,9 @@ class RandomOracle
  public:
     RandomOracle(unsigned int size, unsigned int seed);
 
-    const mpz_class & next() const;
-    const void reset() const;
-    static void reset_cache() { cached_values.clear(); }
+    const mpz_class & next() const noexcept;
+    const void reset() const noexcept;
+    static void reset_cache() noexcept { cached_values.clear(); }
 
  private:
     unsigned int _size;

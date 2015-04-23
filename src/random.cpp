@@ -14,26 +14,26 @@ using std::vector;
 namespace she
 {
 
-CSPRNG::CSPRNG() : _generator(gmp_randinit_default)
+CSPRNG::CSPRNG() noexcept : _generator(gmp_randinit_default)
 {
     random_device dev(RANDOM_DEVICE);
     _generator.seed(dev());
 }
 
 mpz_class
-CSPRNG::get_bits(unsigned int bits) const
+CSPRNG::get_bits(unsigned int bits) const noexcept
 {
     return _generator.get_z_bits(bits);
 }
 
 mpz_class
-CSPRNG::get_range_bits(unsigned int bits) const
+CSPRNG::get_range_bits(unsigned int bits) const noexcept
 {
     return _generator.get_z_range(mpz_class(1) << bits);;
 }
 
 mpz_class
-CSPRNG::get_range(const mpz_class & upper_bound) const
+CSPRNG::get_range(const mpz_class & upper_bound) const noexcept
 {
     return _generator.get_z_range(upper_bound);
 }
@@ -50,7 +50,7 @@ RandomOracle::RandomOracle(unsigned int size, unsigned int seed) :
 
 map<RandomOracle::keys_t, RandomOracle::values_t> RandomOracle::cached_values = {};
 
-const mpz_class & RandomOracle::next() const
+const mpz_class & RandomOracle::next() const noexcept
 {
     keys_t context{_size, _seed};
     auto it = RandomOracle::cached_values.find(context);
@@ -66,7 +66,7 @@ const mpz_class & RandomOracle::next() const
     return cached_values[context][_current_value++];
 }
 
-const void RandomOracle::reset() const
+const void RandomOracle::reset() const noexcept
 {
     _current_value = 0;
 }

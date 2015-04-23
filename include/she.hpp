@@ -27,7 +27,7 @@ public:
                  unsigned int ciphertext_size_bits,
                  unsigned int oracle_seed);
 
-    ParameterSet();
+    ParameterSet() noexcept;
 
     unsigned int security;
     unsigned int noise_size_bits;
@@ -36,9 +36,11 @@ public:
     unsigned int oracle_seed;
 
     static const ParameterSet
-    generate_parameter_set(unsigned int security, unsigned int circuit_mult_size, unsigned int seed);
+    generate_parameter_set(unsigned int security, unsigned int circuit_mult_size, unsigned int seed) noexcept;
 
-    bool operator==(const ParameterSet &) const;
+    unsigned int degree() const noexcept { return private_key_size_bits / noise_size_bits; }
+
+    bool operator==(const ParameterSet &) const noexcept;
 
  private:
     friend class boost::serialization::access;
@@ -63,42 +65,48 @@ class HomomorphicArray : boost::equality_comparable<HomomorphicArray,
  friend class CompressedCiphertext;
  public:
     // Construct from plaintext
-    explicit HomomorphicArray(std::vector<bool> plaintext);
+    explicit HomomorphicArray(std::vector<bool> plaintext) noexcept;
+
+    // Construct empty ciphertext with given public element
+    HomomorphicArray(const mpz_class & x, unsigned int max_degree) noexcept;
 
     // Empty ctor for deserialization purposes
-    HomomorphicArray() {};
+    HomomorphicArray() noexcept {};
 
-    // Homomorphic addition (XOR)
-    const HomomorphicArray operator^=(const HomomorphicArray &) const;
+    // Homomorphic element-wise addition (XOR)
+    HomomorphicArray & operator^=(const HomomorphicArray &);
 
-    // Homomorphic multiplication (AND)
-    const HomomorphicArray operator&=(const HomomorphicArray &) const;
+    // Homomorphic element-wise multiplication (AND)
+    HomomorphicArray & operator&=(const HomomorphicArray &);
 
     // Homomorphic equality comparison
-    const HomomorphicArray equal(const HomomorphicArray &) const;
+    const HomomorphicArray equal(const std::vector<HomomorphicArray> &) const;
 
     // Homomorphic select function
-    const HomomorphicArray select(const std::vector<HomomorphicArray> & mat) const;
+    const HomomorphicArray select(const std::vector<HomomorphicArray> &) const;
 
-    // HomomorphicArray representation comparison (non-homomorphic)
-    const bool operator==(const HomomorphicArray &) const;
+    // Arrays concatenation
+    HomomorphicArray & concat(const HomomorphicArray & other);
 
-    HomomorphicArray& concat(const HomomorphicArray & other);
-    const HomomorphicArray concat(const HomomorphicArray & other) const;
+    unsigned int max_degree() const noexcept { return _max_degree; }
 
-    size_t size() const { return _elements.size(); }
+    size_t size() const noexcept { return _elements.size(); }
 
-    const std::vector<mpz_class>& elements() const { return _elements; }
-    std::vector<mpz_class>& elements() { return _elements; }
+    const std::vector<mpz_class>& elements() const noexcept { return _elements; }
+    std::vector<mpz_class>& elements() noexcept { return _elements; }
 
-    const mpz_class & public_element() const { return *_public_element_ptr; }
+    const mpz_class & public_element() const noexcept { return *_public_element_ptr; }
+
+    // Representation comparison (non-homomorphic)
+    bool operator==(const HomomorphicArray &) const noexcept;
 
  private:
-    HomomorphicArray(const std::vector<mpz_class> & array, const mpz_class & x0);
+    unsigned int _degree;
+    unsigned int _max_degree;
 
     std::vector<mpz_class> _elements;
 
-    void set_public_element(const mpz_class & x);
+    void set_public_element(const mpz_class & x) noexcept;
     static std::set<mpz_class> public_elements;
     typename std::set<mpz_class>::const_iterator _public_element_ptr;
 
@@ -108,6 +116,8 @@ class HomomorphicArray : boost::equality_comparable<HomomorphicArray,
     template<class Archive>
     void save(Archive & ar, unsigned int const version) const
     {
+        ar & BOOST_SERIALIZATION_NVP(_degree);
+        ar & BOOST_SERIALIZATION_NVP(_max_degree);
         ar & BOOST_SERIALIZATION_NVP(_elements);
         ar & boost::serialization::make_nvp("_public_element", *_public_element_ptr);
     }
@@ -115,7 +125,11 @@ class HomomorphicArray : boost::equality_comparable<HomomorphicArray,
     template<class Archive>
     void load(Archive & ar, unsigned int const version)
     {
+
+        ar & BOOST_SERIALIZATION_NVP(_degree);
+        ar & BOOST_SERIALIZATION_NVP(_max_degree);
         ar & BOOST_SERIALIZATION_NVP(_elements);
+
         mpz_class x;
         ar & boost::serialization::make_nvp("_public_element", x);
         set_public_element(x);
@@ -139,20 +153,24 @@ class CompressedCiphertext : boost::equality_comparable<CompressedCiphertext>
  friend class PrivateKey;
  public:
     // Empty ctor for deserialization purposes
-    CompressedCiphertext() {};
+    CompressedCiphertext() noexcept {};
 
     // Expand ciphertext
-    HomomorphicArray expand() const;
+    HomomorphicArray expand() const noexcept;
 
-    const std::vector<mpz_class> & elements_deltas() const { return _elements_deltas; }
-    const mpz_class & public_element_delta() const { return _public_element_delta; }
+    size_t size() const noexcept { return _elements_deltas.size(); }
+
+    const std::vector<mpz_class> & elements_deltas() const noexcept { return _elements_deltas; }
+    const mpz_class & public_element_delta() const noexcept { return _public_element_delta; }
+
+    bool operator== (const CompressedCiphertext &) const noexcept;
 
  private:
-    CompressedCiphertext(const ParameterSet & params);
+    CompressedCiphertext(const ParameterSet & params) noexcept;
 
     ParameterSet _parameter_set;
 
-    void initialize_oracle() const;
+    void initialize_oracle() const noexcept;
     mutable std::unique_ptr<RandomOracle> _oracle;
 
     std::vector<mpz_class> _elements_deltas;
@@ -185,27 +203,27 @@ class PrivateKey : boost::equality_comparable<PrivateKey>
 {
  public:
     // Constuct private from parameter set
-    PrivateKey(const ParameterSet &);
+    PrivateKey(const ParameterSet &) noexcept;
 
     // Empty ctor for deserialization purposes
-    PrivateKey() {};
+    PrivateKey() noexcept {};
 
-    CompressedCiphertext encrypt(const std::vector<bool> & bits) const;
-    std::vector<bool> decrypt(const HomomorphicArray &) const;
+    CompressedCiphertext encrypt(const std::vector<bool> & bits) const noexcept;
+    std::vector<bool> decrypt(const HomomorphicArray &) const noexcept;
 
-    const ParameterSet & parameter_set() const { return _parameter_set; };
-    const mpz_class & private_element() const { return _private_element; }
+    const ParameterSet & parameter_set() const noexcept { return _parameter_set; };
+    const mpz_class & private_element() const noexcept { return _private_element; }
 
-    bool operator==(const PrivateKey &) const;
+    bool operator==(const PrivateKey &) const noexcept;
 
  private:
     ParameterSet _parameter_set;
 
-    void initialize_random_generators() const;
+    void initialize_random_generators() const noexcept;
     mutable std::unique_ptr<CSPRNG> _generator;
     mutable std::unique_ptr<RandomOracle> _oracle;
 
-    PrivateKey& generate_values();
+    PrivateKey& generate_values() noexcept;
     mpz_class _private_element;
 
  private:

@@ -3,16 +3,38 @@
 #include <boost/test/unit_test.hpp>
 
 #include "she.hpp"
+#include "exceptions.hpp"
 #include "serialization_formats.hpp"
 
+using std::abs;
 using std::stringstream;
 using std::vector;
 
+using she::precondition_not_satisfied;
 using she::ParameterSet;
 using she::PrivateKey;
 
 
 BOOST_AUTO_TEST_SUITE(ParameterSetSuite)
+
+
+BOOST_AUTO_TEST_CASE(parameter_set_construction)
+{
+    {
+        const ParameterSet params { 62, 100, 1000, 100000, 5 };
+        BOOST_CHECK_EQUAL(params.security, 62);
+        BOOST_CHECK_EQUAL(params.noise_size_bits, 100);
+        BOOST_CHECK_EQUAL(params.private_key_size_bits, 1000);
+        BOOST_CHECK_EQUAL(params.ciphertext_size_bits, 100000);
+        BOOST_CHECK_EQUAL(params.oracle_seed, 5);
+    }
+
+    {
+        BOOST_CHECK_THROW(ParameterSet(62, 1000, 100, 10000, 5), precondition_not_satisfied);
+        BOOST_CHECK_THROW(ParameterSet(62, 100, 1000, 999, 5), precondition_not_satisfied);
+        BOOST_CHECK_THROW(ParameterSet(62, 0, 1, 2, 5), precondition_not_satisfied);
+    }
+}
 
 BOOST_AUTO_TEST_CASE(parameter_set_generation)
 {
@@ -38,6 +60,11 @@ BOOST_AUTO_TEST_CASE(parameter_set_generation)
     BOOST_CHECK_EQUAL(
       params.ciphertext_size_bits,
       params.private_key_size_bits * params.private_key_size_bits * circuit_mult_size
+    );
+
+    BOOST_CHECK_GT(
+      params.degree() - 1,
+      circuit_mult_size
     );
 }
 
@@ -81,9 +108,13 @@ BOOST_AUTO_TEST_CASE(private_key_construction_accessors_and_comparison)
     const PrivateKey sk(params);
 
     BOOST_CHECK(sk.parameter_set() == params);
+    const auto private_element_size = mpz_sizeinbase(sk.private_element().get_mpz_t(), 2);
+    BOOST_CHECK_EQUAL(private_element_size, params.private_key_size_bits);
 
+    // These should not be the same, because new private key elements are generated every time
     const PrivateKey other_sk(params);
     BOOST_CHECK(sk != other_sk);
+    BOOST_CHECK(!(sk == other_sk));
 }
 
 BOOST_AUTO_TEST_CASE(private_key_encryption_decryption)
@@ -116,11 +147,11 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(private_key_serialization, Format, Formats)
     stringstream ss;
     {
         typename Format::oarchive oa(ss);
-        oa << sk;
+        oa << BOOST_SERIALIZATION_NVP(sk);
     }
     {
         typename Format::iarchive ia(ss);
-        ia >> restored_sk;
+        ia >> BOOST_SERIALIZATION_NVP(restored_sk);
     }
 
     BOOST_CHECK(sk == restored_sk);

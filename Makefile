@@ -1,7 +1,7 @@
 SHELL              := /bin/bash
 
 CXX                := clang++
-CFLAGS             := -g -Wall -fPIC --std=c++11 -O3
+CXXFLAGS           := -g -Wall -fPIC --std=c++11 -O3
 
 BOOSTDIR           := /usr/local/lib
 
@@ -21,7 +21,7 @@ TESTSOURCES        := $(wildcard $(TESTDIR)/*.cpp)
 LIBOBJECTS         := $(patsubst %.cpp,$(BUILDDIR)/%.o, $(LIBSOURCES))
 TESTOBJECTS        := $(patsubst %.cpp,$(BUILDDIR)/%.o, $(TESTSOURCES))
 
-TESTOPTS           := --log_level=test_suite
+TESTOPTS           := --log_level=error
 
 
 .PHONY: all
@@ -30,7 +30,7 @@ all: library
 .PHONY: library
 library: $(LIBTARGET)
 
-compile_objects = $(CXX) $(CFLAGS) $(INC) -c $^ -o $@
+compile_objects = $(CXX) $(CXXFLAGS) $(INC) -c $^ -o $@
 
 $(LIBTARGET): $(LIBOBJECTS)
 	@echo "Link: $^"

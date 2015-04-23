@@ -7,6 +7,7 @@ using std::endl;
 
 #include "she.hpp"
 #include "defs.hpp"
+#include "exceptions.hpp"
 
 using std::random_device;
 using std::vector;
@@ -24,9 +25,11 @@ namespace she
       private_key_size_bits(eta),
       ciphertext_size_bits(gamma),
       oracle_seed(seed)
-    {};
+    {
+        ASSERT((gamma >= eta) && (eta >= rho) && (rho > 0), "Bad parameters");
+    };
 
-    ParameterSet::ParameterSet() :
+    ParameterSet::ParameterSet() noexcept :
       security(1),
       noise_size_bits(1),
       private_key_size_bits(1),
@@ -36,6 +39,7 @@ namespace she
 
     const ParameterSet
     ParameterSet::generate_parameter_set(unsigned int security, unsigned int circuit_mult_size, unsigned int seed)
+    noexcept
     {
         assert(security > 0);
         unsigned int rho = 2 * security,
@@ -46,6 +50,7 @@ namespace she
     }
 
     bool ParameterSet::operator==(const ParameterSet& other) const
+    noexcept
     {
         return (security == other.security)
             && (noise_size_bits == other.noise_size_bits)
@@ -55,20 +60,20 @@ namespace she
     }
 
 
-    PrivateKey::PrivateKey(const ParameterSet & parameter_set) :
+    PrivateKey::PrivateKey(const ParameterSet & parameter_set) noexcept :
       _parameter_set(parameter_set)
     {
         initialize_random_generators();
         generate_values();
     }
 
-    bool PrivateKey::operator==(const PrivateKey & other) const
+    bool PrivateKey::operator==(const PrivateKey & other) const noexcept
     {
         return (_parameter_set == other._parameter_set)
             && (_private_element == other._private_element);
     }
 
-    PrivateKey& PrivateKey::generate_values()
+    PrivateKey& PrivateKey::generate_values() noexcept
     {
         // Generate odd eta-bit integer
         do {
@@ -86,13 +91,13 @@ namespace she
         return *this;
     }
 
-    void PrivateKey::initialize_random_generators() const
+    void PrivateKey::initialize_random_generators() const noexcept
     {
         _generator.reset(new CSPRNG);
         _oracle.reset(new RandomOracle{_parameter_set.ciphertext_size_bits, _parameter_set.oracle_seed});
     }
 
-    CompressedCiphertext PrivateKey::encrypt(const std::vector<bool> & bits) const
+    CompressedCiphertext PrivateKey::encrypt(const std::vector<bool> & bits) const noexcept
     {
         _oracle->reset();
 
@@ -117,7 +122,7 @@ namespace she
         return result;
     }
 
-    vector<bool> PrivateKey::decrypt(const HomomorphicArray & array) const
+    vector<bool> PrivateKey::decrypt(const HomomorphicArray & array) const noexcept
     {
         _oracle->reset();
 
