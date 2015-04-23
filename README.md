@@ -49,7 +49,7 @@ _Note_. Default value of `BOOST_DIR` is `/usr/local/lib`.
 
 - [ ] Documentation
 - [ ] Include ciphertext size, encryption, decryption, and homomorphic evaluation timing estimates
-- [ ] Comparison with helib
+- [ ] Comparison with [helib](https://github.com/shaih/HElib)
 
 
 
