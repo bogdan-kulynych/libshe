@@ -91,7 +91,7 @@ class HomomorphicArray : boost::equality_comparable<HomomorphicArray,
     const mpz_class & public_element() const { return *_public_element_ptr; }
 
  private:
-    HomomorphicArray(const std::vector<mpz_class> array, const mpz_class x0);
+    HomomorphicArray(const std::vector<mpz_class> & array, const mpz_class & x0);
 
     std::vector<mpz_class> _elements;
 
