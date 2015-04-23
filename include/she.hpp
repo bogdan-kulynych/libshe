@@ -21,11 +21,11 @@ namespace she
 class ParameterSet : boost::equality_comparable<ParameterSet>
 {
 public:
-    ParameterSet(unsigned int lambda,
-                 unsigned int rho,
-                 unsigned int eta,
-                 unsigned int gamma,
-                 unsigned int seed);
+    ParameterSet(unsigned int security,
+                 unsigned int noise_size_bits,
+                 unsigned int private_key_size_bits,
+                 unsigned int ciphertext_size_bits,
+                 unsigned int oracle_seed);
 
     ParameterSet();
 
@@ -77,7 +77,7 @@ class HomomorphicArray : boost::equality_comparable<HomomorphicArray,
     // Homomorphic equality comparison
     const HomomorphicArray equal(const HomomorphicArray &) const;
 
-    // Homomorphic matrix multiplication
+    // Homomorphic select function
     const HomomorphicArray select(const std::vector<HomomorphicArray> & mat) const;
 
     // HomomorphicArray representation comparison (non-homomorphic)
@@ -85,6 +85,8 @@ class HomomorphicArray : boost::equality_comparable<HomomorphicArray,
 
     HomomorphicArray& concat(const HomomorphicArray & other);
     const HomomorphicArray concat(const HomomorphicArray & other) const;
+
+    size_t size() const { return _elements.size(); }
 
     const std::vector<mpz_class>& elements() const { return _elements; }
     std::vector<mpz_class>& elements() { return _elements; }
@@ -116,9 +118,10 @@ class HomomorphicArray : boost::equality_comparable<HomomorphicArray,
         ar & BOOST_SERIALIZATION_NVP(_elements);
         mpz_class x;
         ar & boost::serialization::make_nvp("_public_element", x);
+        set_public_element(x);
     }
 
-    // BOOST_SERIALIZATION_SPLIT_MEMBER();
+    BOOST_SERIALIZATION_SPLIT_MEMBER();
 };
 
 // Optimized homomorphic addition (XOR)
@@ -221,7 +224,7 @@ class PrivateKey : boost::equality_comparable<PrivateKey>
         ar & BOOST_SERIALIZATION_NVP(_parameter_set);
         ar & BOOST_SERIALIZATION_NVP(_private_element);
 
-        // initialize_random_generators();
+        initialize_random_generators();
     }
 
     BOOST_SERIALIZATION_SPLIT_MEMBER();
