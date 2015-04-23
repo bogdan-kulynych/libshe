@@ -48,8 +48,8 @@ _Note_. Default value of `BOOST_DIR` is `/usr/local/lib`.
 ## Roadmap
 
 - [ ] Documentation
-- [ ] Include size and timing estimates
-- [ ] Comparison against helib
+- [ ] Include ciphertext size, encryption, decryption, and homomorphic evaluation timing estimates
+- [ ] Comparison with helib
 
 
 
