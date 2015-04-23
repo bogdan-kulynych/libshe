@@ -1,7 +1,7 @@
 she
 ---
 
-Symmetric Somewhat Homomorphic Encryption.
+Symmetric somewhat homomorphic encryption library.
 
 
 ## Introduction
@@ -27,7 +27,7 @@ See [technical report][Kul15] for details.
 ### Requirements
 
 - [boost](http://www.boost.org/) >= 1.57
-- [GMP](https://gmplib.org/) >= 6.x.x
+- [GMP](https://gmplib.org/) >= 6.0.0
 
 ### Building
 
