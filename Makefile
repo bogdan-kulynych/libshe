@@ -3,7 +3,9 @@ SHELL              := /bin/bash
 CXX                := clang++
 CFLAGS             := -g -Wall -fPIC --std=c++11 -O3
 
-LIBS               := -lgmp -lboost_serialization
+BOOSTDIR           := /usr/local/lib
+
+LIBS               := -lgmp -L$(BOOSTDIR) -lboost_serialization
 TESTLIBS           := -lboost_unit_test_framework
 INC                := -Iinclude
 
