@@ -15,13 +15,14 @@ template<class Archive>
 void save(Archive & ar, const mpz_class & value, const unsigned int version)
 {
     std::string repr = value.get_str(she::INTEGER_SERIALIZATION_BASE);
+    ar & BOOST_SERIALIZATION_NVP(repr);
 }
 
 template<class Archive>
 void load(Archive & ar, mpz_class & value, const unsigned int version)
 {
     std::string repr;
-    ar & make_nvp("repr", repr);
+    ar & BOOST_SERIALIZATION_NVP(repr);
     value.set_str(repr, she::INTEGER_SERIALIZATION_BASE);
 }
 
