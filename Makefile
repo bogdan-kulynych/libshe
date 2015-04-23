@@ -45,7 +45,7 @@ test: $(TESTTARGET)
 
 $(TESTTARGET): $(TESTOBJECTS) $(LIBOBJECTS)
 	@echo "Link: $^"
-	@$(CXX) $(LIBS) $(TESTLIBS) $^ -o $@
+	@$(CXX) $^ $(LIBS) $(TESTLIBS) -o $@
 
 $(TESTOBJECTS): $(BUILDDIR)/%.o: %.cpp
 	@echo "Compile: $^"

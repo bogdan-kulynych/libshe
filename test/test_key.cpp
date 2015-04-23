@@ -52,23 +52,23 @@ BOOST_AUTO_TEST_CASE(parameter_set_equality_comparison)
     BOOST_CHECK(c != a);
 }
 
-// BOOST_AUTO_TEST_CASE_TEMPLATE(parameter_set_serialization, Format, Formats)
-// {
-//     const ParameterSet params { 62, 100, 1000, 100000, 5 };
-//     ParameterSet restored_params {};
-//
-//     stringstream ss;
-//     {
-//         typename Format::oarchive oa(ss);
-//         oa << params;
-//     }
-//     {
-//         typename Format::iarchive ia(ss);
-//         ia >> restored_params;
-//     }
-//
-//     BOOST_CHECK(params == restored_params);
-// }
+BOOST_AUTO_TEST_CASE_TEMPLATE(parameter_set_serialization, Format, Formats)
+{
+    const ParameterSet params { 62, 100, 1000, 100000, 5 };
+    ParameterSet restored_params {};
+
+    stringstream ss;
+    {
+        typename Format::oarchive oa(ss);
+        oa << params;
+    }
+    {
+        typename Format::iarchive ia(ss);
+        ia >> restored_params;
+    }
+
+    BOOST_CHECK(params == restored_params);
+}
 
 BOOST_AUTO_TEST_SUITE_END()
 
@@ -107,23 +107,23 @@ BOOST_AUTO_TEST_CASE(private_key_encryption_decryption)
     BOOST_CHECK_EQUAL(successful_recoveries, iterations);
 }
 
-// BOOST_AUTO_TEST_CASE_TEMPLATE(private_key_serialization, Format, Formats)
-// {
-//     const auto params = ParameterSet::generate_parameter_set(62, 5, 42);
-//     const PrivateKey sk(params);
-//     PrivateKey restored_sk;
-//
-//     stringstream ss;
-//     {
-//         typename Format::oarchive oa(ss);
-//         oa << sk;
-//     }
-//     {
-//         typename Format::iarchive ia(ss);
-//         ia >> restored_sk;
-//     }
-//
-//     BOOST_CHECK(sk == restored_sk);
-// }
+BOOST_AUTO_TEST_CASE_TEMPLATE(private_key_serialization, Format, Formats)
+{
+    const auto params = ParameterSet::generate_parameter_set(62, 5, 42);
+    const PrivateKey sk(params);
+    PrivateKey restored_sk;
+
+    stringstream ss;
+    {
+        typename Format::oarchive oa(ss);
+        oa << sk;
+    }
+    {
+        typename Format::iarchive ia(ss);
+        ia >> restored_sk;
+    }
+
+    BOOST_CHECK(sk == restored_sk);
+}
 
 BOOST_AUTO_TEST_SUITE_END()
