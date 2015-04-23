@@ -37,7 +37,7 @@ Run tests
 make test BOOST_DIR=/path/to/boost/libraries
 ```
 
-Produce an `so` library in build folder:
+Produce a dynamice library (so) in build folder:
 
 ```
 make BOOST_DIR=/path/to/boost/libraries
