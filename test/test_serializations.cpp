@@ -4,7 +4,7 @@
 
 #include <gmpxx.h>
 
-#include "../src/serializations.hpp"
+#include "serializations.hpp"
 #include "serialization_formats.hpp"
 
 using std::stringstream;

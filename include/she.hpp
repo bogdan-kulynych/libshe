@@ -12,6 +12,7 @@
 #include <gmpxx.h>
 
 #include "random.hpp"
+#include "serializations.hpp"
 
 
 namespace she
@@ -77,7 +78,7 @@ class HomomorphicArray : boost::equality_comparable<HomomorphicArray,
     const HomomorphicArray equal(const HomomorphicArray &) const;
 
     // Homomorphic matrix multiplication
-    const HomomorphicArray dot(const std::vector<HomomorphicArray> & mat) const;
+    const HomomorphicArray select(const std::vector<HomomorphicArray> & mat) const;
 
     // HomomorphicArray representation comparison (non-homomorphic)
     const bool operator==(const HomomorphicArray &) const;
@@ -220,7 +221,7 @@ class PrivateKey : boost::equality_comparable<PrivateKey>
         ar & BOOST_SERIALIZATION_NVP(_parameter_set);
         ar & BOOST_SERIALIZATION_NVP(_private_element);
 
-        initialize_random_generators();
+        // initialize_random_generators();
     }
 
     BOOST_SERIALIZATION_SPLIT_MEMBER();

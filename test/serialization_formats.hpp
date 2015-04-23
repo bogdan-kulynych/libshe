@@ -1,5 +1,3 @@
-#include "../src/serializations.hpp"
-
 #include <boost/mpl/list.hpp>
 
 #include <boost/archive/xml_oarchive.hpp>
