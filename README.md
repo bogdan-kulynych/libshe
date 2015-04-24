@@ -74,7 +74,7 @@ const auto compressed_ciphertext = sk.encrypt();
 const auto ciphertext = compressed_ciphertext.expand();
 
 // Execute some algorithm
-const vector<bool> another_plaintext = { 1, 1, 1, 1, 1, 1, 1, 1 };
+const vector<bool> another_plaintext = {1, 1, 1, 1, 1, 1, 1, 1};
 const auto response = ciphertext ^ HomomorphicArray(another_plaintext);
 
 // ...
@@ -92,7 +92,7 @@ assert(decrypted_response == expected_result);
 
 - [ ] Documentation
 - [ ] Include ciphertext size, encryption, decryption, and homomorphic evaluation timing estimates
-- [ ] Comparison with [helib](https://github.com/shaih/HElib)
+- [ ] Comparison with [HElib](https://github.com/shaih/HElib)
 
 
 

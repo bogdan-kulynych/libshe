@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE(remote_execution_simulation)
         const HomomorphicArray ciphertext = received_compressed_ciphertext.expand();
 
         // Execute some algorithm
-        const vector<bool> another_plaintext = { 1, 1, 1, 1, 1, 1, 1, 1 };
+        const vector<bool> another_plaintext = {1, 1, 1, 1, 1, 1, 1, 1};
         const auto response = ciphertext ^ HomomorphicArray(another_plaintext);
 
         // Serialize result
