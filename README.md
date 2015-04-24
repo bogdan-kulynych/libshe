@@ -1,5 +1,5 @@
-she
----
+libshe
+------
 
 Symmetric homomorphic encryption library.
 
