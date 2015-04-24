@@ -14,7 +14,7 @@ BOOST_AUTO_TEST_SUITE(SerializationsSuite)
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(mpz_class_serialization, Format, Formats)
 {
-    mpz_class z = 111111111;
+    mpz_class z = mpz_class(1) << 10000;
     mpz_class restored_z;
 
     stringstream ss;
