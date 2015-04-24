@@ -1,7 +1,7 @@
 she
 ---
 
-Symmetric somewhat homomorphic encryption library.
+Symmetric homomorphic encryption library.
 
 
 ## Introduction
@@ -44,6 +44,49 @@ make BOOST_DIR=/path/to/boost/libraries
 ```
 
 _Note_. Default value of `BOOST_DIR` is `/usr/local/lib`.
+
+## Usage
+
+```cpp
+using she::ParameterSet;
+using she::PrivateKey;
+using she::HomomorphicArray;
+
+// Generate parameter set so that the library:
+// - Has medium security level (62-bit)
+// - Allows for at least 30 bit multiplications
+// - Seeds the non-secure random number generator with 42
+
+const ParameterSet params = ParameterSet::generate_parameter_set(62, 1, 42);
+
+// Generate private key
+const PrivateKey sk(params);
+
+// Encrypt plaintext
+const vector<bool> plaintext = {1, 0, 1, 0, 1, 0, 1, 0};
+const auto compressed_ciphertext = sk.encrypt();
+
+// ...
+// Serialize and send compressed ciphertext
+// ...
+
+// Expand the ciphertext to perform operations
+const auto ciphertext = compressed_ciphertext.expand();
+
+// Execute some algorithm
+const vector<bool> another_plaintext = { 1, 1, 1, 1, 1, 1, 1, 1 };
+const auto response = ciphertext ^ HomomorphicArray(another_plaintext);
+
+// ...
+// Serialize and send back the response
+// ...
+
+// Decrypt to obtain the algorithm output
+const auto decrypted_response = sk.decrypt(response);
+const vector<bool> expected_result = {0, 1, 0, 1, 0, 1, 0, 1};
+assert(decrypted_response == expected_result);
+
+```
 
 ## Roadmap
 
