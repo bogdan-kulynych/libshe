@@ -21,7 +21,7 @@ TESTSOURCES        := $(wildcard $(TESTDIR)/*.cpp)
 LIBOBJECTS         := $(patsubst %.cpp,$(BUILDDIR)/%.o, $(LIBSOURCES))
 TESTOBJECTS        := $(patsubst %.cpp,$(BUILDDIR)/%.o, $(TESTSOURCES))
 
-TESTOPTS           := --log_level=error
+TESTOPTS           := --log_level=test_suite
 
 
 .PHONY: all
