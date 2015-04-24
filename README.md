@@ -1,5 +1,5 @@
-libshe
-------
+# libshe
+
 
 Symmetric homomorphic encryption library.
 
@@ -37,7 +37,7 @@ Run tests
 make test BOOST_DIR=/path/to/boost/libraries
 ```
 
-Produce a library in `build` directory:
+Produce a library in `build` directory
 
 ```
 make BOOST_DIR=/path/to/boost/libraries
