@@ -182,6 +182,7 @@ class CompressedCiphertext : boost::equality_comparable<CompressedCiphertext>
     template<class Archive>
     void save(Archive & ar, unsigned int const version) const
     {
+        ar & BOOST_SERIALIZATION_NVP(_parameter_set);
         ar & BOOST_SERIALIZATION_NVP(_elements_deltas);
         ar & BOOST_SERIALIZATION_NVP(_public_element_delta);
     }
@@ -189,6 +190,7 @@ class CompressedCiphertext : boost::equality_comparable<CompressedCiphertext>
     template<class Archive>
     void load(Archive & ar, unsigned int const version)
     {
+        ar & BOOST_SERIALIZATION_NVP(_parameter_set);
         ar & BOOST_SERIALIZATION_NVP(_elements_deltas);
         ar & BOOST_SERIALIZATION_NVP(_public_element_delta);
 

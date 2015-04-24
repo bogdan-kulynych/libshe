@@ -116,7 +116,7 @@ namespace she
             const mpz_class & oracle_output = _oracle->next();
 
             // Add compressed ciphertext deltas
-            result._elements_deltas.push_back(oracle_output % _private_element - 2*r - m);
+            result._elements_deltas.push_back((oracle_output - 2*r - m) % _private_element);
         }
 
         return result;

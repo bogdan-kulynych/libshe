@@ -23,7 +23,8 @@ void CompressedCiphertext::initialize_oracle() const noexcept
 
 bool CompressedCiphertext::operator==(const CompressedCiphertext & other) const noexcept
 {
-    return (_public_element_delta == other._public_element_delta)
+    return (_parameter_set == other._parameter_set)
+        && (_public_element_delta == other._public_element_delta)
         && (_elements_deltas == other._elements_deltas);
 }
 
@@ -100,7 +101,8 @@ HomomorphicArray & HomomorphicArray::operator&=(const HomomorphicArray & other)
 
 bool HomomorphicArray::operator==(const HomomorphicArray & other) const noexcept
 {
-    return (_elements == other._elements) && (*_public_element_ptr == *other._public_element_ptr);
+    return (_elements == other._elements)
+        && (*_public_element_ptr == *other._public_element_ptr);
 }
 
 void HomomorphicArray::set_public_element(const mpz_class & x) noexcept
