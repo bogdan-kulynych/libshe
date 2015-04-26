@@ -98,6 +98,13 @@ assert(decrypted_response == expected_result);
 - [ ] Comparison with [HElib](https://github.com/shaih/HElib)
 
 
+## License
+
+The code is distributed under the GPLv3 license – see the accompanying LICENSE file.
+
+Copyright © 2015 Bogdan Kulynych. `hello [at] bogdankulynych.me`
+
+
 
 [DGHV10]: http://eprint.iacr.org/2009/616.pdf
 [CNT11]: http://eprint.iacr.org/2011/440.pdf
