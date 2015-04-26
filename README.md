@@ -25,7 +25,7 @@ See [technical report][Kul15] (draft) for details.
 
 ## Status
 
-This is experimental software and should not be used in production.
+This is experimental software and **should not be used in mission-critical applications.**
 
 ### Roadmap
 
