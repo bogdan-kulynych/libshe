@@ -25,7 +25,7 @@ See [technical report][Kul15] (draft) for details.
 
 ## Status
 
-_Warning_. This is software is experimental, not production-ready, and moreover, based on quite recent and fragile cryptography. **It should not be used in mission-critical applications.**
+_Warning_. This is experimental software. **It is not to be used in mission-critical applications.**
 
 ### Roadmap
 
