@@ -1,4 +1,4 @@
-# libshe
+# libshe 
 
 [![Build Status](https://travis-ci.org/bogdan-kulynych/libshe.svg?branch=master)](https://travis-ci.org/bogdan-kulynych/libshe) [![Coverage Status](https://coveralls.io/repos/bogdan-kulynych/libshe/badge.svg?branch=master)](https://coveralls.io/r/bogdan-kulynych/libshe?branch=master)
 
@@ -25,7 +25,7 @@ See [technical report][Kul15] (draft) for details.
 
 ## Status
 
-This is experimental software and **should not be used in mission-critical applications.**
+_Warning_. This is software is experimental, not production-ready, and moreover, based on quite recent and fragile cryptography. **It should not be used in mission-critical applications.**
 
 ### Roadmap
 
