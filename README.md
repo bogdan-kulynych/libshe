@@ -1,5 +1,6 @@
 # libshe
 
+[![Build Status](https://travis-ci.org/bogdan-kulynych/libshe.svg?branch=master)](https://travis-ci.org/bogdan-kulynych/libshe) [![Coverage Status](https://coveralls.io/repos/bogdan-kulynych/libshe/badge.svg?branch=master)](https://coveralls.io/r/bogdan-kulynych/libshe?branch=master)
 
 Symmetric homomorphic encryption library.
 
@@ -19,31 +20,34 @@ See the following diagram for visual explanation.
 
 ![SFE](misc/sfe.png)
 
-See [technical report][Kul15] for details.
+See [technical report][Kul15] (draft) for details.
 
 
 ## Installation
 
 ### Requirements
 
-- [boost](http://www.boost.org/) >= 1.57
+- clang >= 3.4 _or_ gcc >= 4.8
+- [boost](http://www.boost.org/) >= 1.55
 - [GMP](https://gmplib.org/) >= 6.0.0
+- lcov >= 1.11 (optional)
 
 ### Building
 
 Run tests
 
 ```
-make test BOOST_DIR=/path/to/boost/libraries
+make test
 ```
 
 Produce a library in `build` directory
 
 ```
-make BOOST_DIR=/path/to/boost/libraries
+make
 ```
 
-_Note_. Default value of `BOOST_DIR` is `/usr/local/lib`.
+_Note_. Default path to boost libraries is `/usr/local/lib`. Set `BOOSTDIR` env variable to change.
+
 
 ## Usage
 
@@ -52,11 +56,10 @@ using she::ParameterSet;
 using she::PrivateKey;
 using she::HomomorphicArray;
 
-// Generate parameter set so that the library:
+// Generate parameter set so that the encryption scheme:
 // - Has medium security level (62-bit)
-// - Allows for at least 30 bit multiplications
+// - Allows to evaluate at least 1 multiplications for every bit in plaintext
 // - Seeds the non-secure random number generator with 42
-
 const ParameterSet params = ParameterSet::generate_parameter_set(62, 1, 42);
 
 // Generate private key
