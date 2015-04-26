@@ -1,6 +1,7 @@
-# libshe 
+# libshe
 
 [![Build Status](https://travis-ci.org/bogdan-kulynych/libshe.svg?branch=master)](https://travis-ci.org/bogdan-kulynych/libshe) [![Coverage Status](https://coveralls.io/repos/bogdan-kulynych/libshe/badge.svg?branch=master)](https://coveralls.io/r/bogdan-kulynych/libshe?branch=master)
+![](http://piwik-cumulonimbus.rhcloud.com/piwik.php?idsite=3&rec=1)
 
 Symmetric homomorphic encryption library.
 
