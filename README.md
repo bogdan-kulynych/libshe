@@ -73,7 +73,7 @@ Client generates a parameter set:
 const ParameterSet params = ParameterSet::generate_parameter_set(62, 1, 42);
 ```
 
-Given these parameters, the encryption scheme has following qualities:
+Given these parameters, the encryption scheme exhibits following properties:
 
    - Security level is medium (62-bit)
    - At least 1 multiplication can be evaluated on every bit in plaintext
