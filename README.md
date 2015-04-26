@@ -27,7 +27,7 @@ See [technical report][Kul15] (draft) for details.
 
 ### Requirements
 
-- clang >= 3.4 _or_ gcc >= 4.8
+- gcc >= 4.8
 - [boost](http://www.boost.org/) >= 1.55
 - [GMP](https://gmplib.org/) >= 6.0.0
 - lcov >= 1.11 (optional)
