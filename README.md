@@ -23,6 +23,20 @@ See the following diagram for visual explanation.
 See [technical report][Kul15] (draft) for details.
 
 
+## Status
+
+This is experimental software and should not be used in production.
+
+### Roadmap
+
+- [x] CI and coverage reports
+- [ ] Installation
+- [ ] Timing and memory estimates
+- [ ] Comparison with [HElib](https://github.com/shaih/HElib)
+- [ ] Documentation
+- [ ] Additional homomorphic operations
+
+
 ## Installation
 
 ### Requirements
@@ -30,7 +44,7 @@ See [technical report][Kul15] (draft) for details.
 - gcc >= 4.8
 - [boost](http://www.boost.org/) >= 1.55
 - [GMP](https://gmplib.org/) >= 6.0.0
-- lcov >= 1.11 (optional)
+- [lcov](http://ltp.sourceforge.net/coverage/lcov/readme.php) >= 1.11 (optional)
 
 ### Building
 
@@ -90,13 +104,6 @@ const vector<bool> expected_result = {0, 1, 0, 1, 0, 1, 0, 1};
 assert(decrypted_response == expected_result);
 
 ```
-
-## Roadmap
-
-- [ ] Documentation
-- [ ] Include ciphertext size, encryption, decryption, and homomorphic evaluation timing estimates
-- [ ] Comparison with [HElib](https://github.com/shaih/HElib)
-
 
 ## License
 
