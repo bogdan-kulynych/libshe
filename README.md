@@ -63,42 +63,58 @@ make
 _Note_. Default path to boost libraries is `/usr/local/lib`. Set `BOOSTDIR` env variable to change.
 
 
-## Usage
+## Usage example
+
+The following example assumes a client and a server that are engaged in a two-party secure function evaluation protocol.
+
+Client generates a parameter set:
 
 ```cpp
-using she::ParameterSet;
-using she::PrivateKey;
-using she::HomomorphicArray;
-
-// Generate parameter set so that the encryption scheme:
-// - Has medium security level (62-bit)
-// - Allows to evaluate at least 1 multiplications for every bit in plaintext
-// - Seeds the non-secure random number generator with 42
 const ParameterSet params = ParameterSet::generate_parameter_set(62, 1, 42);
+```
 
-// Generate private key
+Given these parameters, the encryption scheme has following qualities:
+
+   - Security level is medium (62-bit)
+   - At least 1 multiplication can be evaluated on every bit in plaintext
+   - The non-secure random number generator used in ciphertext compression is seeded with number 42
+
+Client then constructs a private key object from generated parameters:
+
+```cpp
 const PrivateKey sk(params);
+```
 
-// Encrypt plaintext
+Encrypts the plaintext:
+
+```cpp
 const vector<bool> plaintext = {1, 0, 1, 0, 1, 0, 1, 0};
 const auto compressed_ciphertext = sk.encrypt();
+```
 
-// ... Serialize and send compressed ciphertext ...
+Serializes and sends compressed ciphertext to server.
 
-// Expand the ciphertext to perform operations
+Upon obtaining the compressed ciphertext, Server expands it to perform operations:
+
+```cpp
 const auto ciphertext = compressed_ciphertext.expand();
+```
 
-// Execute some algorithm
+Executes the algorithm (here negation of an 8-bit input)
+
+```cpp
 const vector<bool> another_plaintext = {1, 1, 1, 1, 1, 1, 1, 1};
 const auto response = ciphertext ^ HomomorphicArray(another_plaintext);
+```
 
-// ... Serialize and send back the response ...
+Serializes the output and sends it back to the client.
 
-// Decrypt to obtain the algorithm output
+Client decrypts the response and obtains the algorithm output in plaintext:
+
+```cpp
 const auto decrypted_response = sk.decrypt(response);
 const vector<bool> expected_result = {0, 1, 0, 1, 0, 1, 0, 1};
 assert(decrypted_response == expected_result);
-
 ```
 
 ## License
