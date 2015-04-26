@@ -38,7 +38,7 @@ public:
     unsigned int oracle_seed;
 
     static const ParameterSet
-    generate_parameter_set(unsigned int security, unsigned int circuit_mult_size, unsigned int seed) noexcept;
+    generate_parameter_set(unsigned int security, unsigned int circuit_mult_size, unsigned int seed);
 
     unsigned int degree() const noexcept { return private_key_size_bits / noise_size_bits; }
 

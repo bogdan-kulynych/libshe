@@ -21,6 +21,12 @@ BOOST_AUTO_TEST_SUITE(ParameterSetSuite)
 BOOST_AUTO_TEST_CASE(parameter_set_construction)
 {
     {
+        BOOST_CHECK_THROW(ParameterSet(42, 1000, 100, 10000, 5), precondition_not_satisfied);
+        BOOST_CHECK_THROW(ParameterSet(42, 100, 1000, 999, 5), precondition_not_satisfied);
+        BOOST_CHECK_THROW(ParameterSet(42, 0, 1, 2, 5), precondition_not_satisfied);
+    }
+
+    {
         const ParameterSet params { 42, 100, 1000, 100000, 5 };
         BOOST_CHECK_EQUAL(params.security, 42);
         BOOST_CHECK_EQUAL(params.noise_size_bits, 100);
@@ -28,44 +34,49 @@ BOOST_AUTO_TEST_CASE(parameter_set_construction)
         BOOST_CHECK_EQUAL(params.ciphertext_size_bits, 100000);
         BOOST_CHECK_EQUAL(params.oracle_seed, 5);
     }
-
-    {
-        BOOST_CHECK_THROW(ParameterSet(42, 1000, 100, 10000, 5), precondition_not_satisfied);
-        BOOST_CHECK_THROW(ParameterSet(42, 100, 1000, 999, 5), precondition_not_satisfied);
-        BOOST_CHECK_THROW(ParameterSet(42, 0, 1, 2, 5), precondition_not_satisfied);
-    }
 }
 
 BOOST_AUTO_TEST_CASE(parameter_set_generation)
 {
-    const unsigned int security = 42;
-    const unsigned int circuit_mult_size = 20;
-    const ParameterSet params = ParameterSet::generate_parameter_set(security, circuit_mult_size, 42);
+    {
+        BOOST_CHECK_THROW(ParameterSet::generate_parameter_set(0, 0, 42),
+            precondition_not_satisfied);
+        BOOST_CHECK_THROW(ParameterSet::generate_parameter_set(0, 1, 42),
+            precondition_not_satisfied);
+        BOOST_CHECK_THROW(ParameterSet::generate_parameter_set(1, 0, 42),
+            precondition_not_satisfied);
+    }
 
-    BOOST_CHECK_EQUAL(
-      params.security,
-      security
-    );
+    {
+        const unsigned int security = 42;
+        const unsigned int circuit_mult_size = 20;
+        const ParameterSet params = ParameterSet::generate_parameter_set(security, circuit_mult_size, 42);
 
-    BOOST_CHECK_EQUAL(
-      params.noise_size_bits,
-      2 * security
-    );
+        BOOST_CHECK_EQUAL(
+          params.security,
+          security
+        );
 
-    BOOST_CHECK_EQUAL(
-      params.private_key_size_bits,
-      security * security + security * circuit_mult_size
-    );
+        BOOST_CHECK_EQUAL(
+          params.noise_size_bits,
+          2 * security
+        );
 
-    BOOST_CHECK_EQUAL(
-      params.ciphertext_size_bits,
-      params.private_key_size_bits * params.private_key_size_bits * circuit_mult_size
-    );
+        BOOST_CHECK_EQUAL(
+          params.private_key_size_bits,
+          security * security + security * circuit_mult_size
+        );
 
-    BOOST_CHECK_GT(
-      params.degree() - 1,
-      circuit_mult_size
-    );
+        BOOST_CHECK_EQUAL(
+          params.ciphertext_size_bits,
+          params.private_key_size_bits * params.private_key_size_bits * circuit_mult_size
+        );
+
+        BOOST_CHECK_GT(
+          params.degree() - 1,
+          circuit_mult_size
+        );
+    }
 }
 
 BOOST_AUTO_TEST_CASE(parameter_set_equality_comparison)
