@@ -10,7 +10,7 @@ INC                := -Iinclude
 
 SRCDIR             := src
 BUILDDIR           := build
-TESTDIR            := test
+TESTDIR            := tests
 
 LIBTARGET          := $(BUILDDIR)/libshe.so
 TESTTARGET         := $(BUILDDIR)/runtests
@@ -41,16 +41,16 @@ $(LIBOBJECTS): $(BUILDDIR)/%.o: %.cpp
 	@mkdir -p $(BUILDDIR)/$(SRCDIR)
 	@$(CXX) $(CXXFLAGS) $(INC) -c $^ -o $@
 
-.PHONY: test
-test: CXXFLAGS += -O0 -DDEBUG -g --coverage
-test: LDFLAGS = --coverage
-test: $(TESTTARGET)
+.PHONY: tests
+tests: CXXFLAGS += -O0 -DDEBUG -g --coverage
+tests: LDFLAGS = --coverage
+tests: $(TESTTARGET)
 	@$(TESTTARGET) $(TESTOPTS)
 
 .PHONY: coverage
 coverage:
 	@lcov --gcov-tool $(GCOV) --directory . --capture --output-file $(COVERAGEFILE)
-	@lcov --gcov-tool $(GCOV) --remove $(COVERAGEFILE) 'test/*' '/usr/*' --output-file $(COVERAGEFILE) 2> /dev/null
+	@lcov --gcov-tool $(GCOV) --remove $(COVERAGEFILE) 'tests/*' '/usr/*' --output-file $(COVERAGEFILE) 2> /dev/null
 	@lcov --gcov-tool $(GCOV) --list $(COVERAGEFILE)
 
 $(TESTTARGET): $(TESTOBJECTS) $(LIBOBJECTS)

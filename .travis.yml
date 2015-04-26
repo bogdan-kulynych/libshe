@@ -31,7 +31,7 @@ install:
 - gem install coveralls-lcov
 
 script:
-- make test
+- make tests
 - make
 
 after_success:

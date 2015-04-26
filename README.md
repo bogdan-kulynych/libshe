@@ -37,7 +37,7 @@ See [technical report][Kul15] (draft) for details.
 Run tests
 
 ```
-make test
+make tests
 ```
 
 Produce a library in `build` directory
