@@ -46,7 +46,7 @@ RandomOracle::RandomOracle(unsigned int size, unsigned int seed) :
   _current_value(0)
 {
     _generator.seed(seed);
-};
+}
 
 map<RandomOracle::keys_t, RandomOracle::values_t> RandomOracle::cached_values = {};
 
@@ -71,4 +71,4 @@ const void RandomOracle::reset() const noexcept
     _current_value = 0;
 }
 
-};
+}

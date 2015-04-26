@@ -27,7 +27,7 @@ namespace she
       oracle_seed(seed)
     {
         ASSERT((gamma >= eta) && (eta >= rho) && (rho > 0), "Bad parameters");
-    };
+    }
 
     ParameterSet::ParameterSet() noexcept :
       security(1),
@@ -35,7 +35,7 @@ namespace she
       private_key_size_bits(1),
       ciphertext_size_bits(1),
       oracle_seed(1)
-    {};
+    {}
 
     const ParameterSet
     ParameterSet::generate_parameter_set(unsigned int security, unsigned int circuit_mult_size, unsigned int seed)
@@ -130,7 +130,7 @@ namespace she
         for (const mpz_class & element : array.elements())
         {
             const mpz_class m = element % _private_element % 2;
-            result.push_back(static_cast<bool>(m));
+            result.push_back(static_cast<bool>(m.get_si()));
         }
         return result;
     }

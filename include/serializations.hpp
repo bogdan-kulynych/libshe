@@ -1,4 +1,6 @@
 #pragma once
+
+#include <cstddef>
 #include <string>
 
 #include <boost/serialization/nvp.hpp>
@@ -28,4 +30,4 @@ void load(Archive & ar, mpz_class & value, const unsigned int version)
 
 }} // namespace boost::serialization
 
-BOOST_SERIALIZATION_SPLIT_FREE(mpz_class);
+BOOST_SERIALIZATION_SPLIT_FREE(mpz_class)

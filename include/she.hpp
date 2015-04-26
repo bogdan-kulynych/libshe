@@ -1,4 +1,6 @@
 #pragma once
+
+#include <cstddef>
 #include <set>
 #include <vector>
 #include <memory>
@@ -85,8 +87,8 @@ class HomomorphicArray : boost::equality_comparable<HomomorphicArray,
     // Homomorphic select function
     const HomomorphicArray select(const std::vector<HomomorphicArray> &) const;
 
-    // Arrays concatenation
-    HomomorphicArray & concat(const HomomorphicArray & other);
+    // Extend array
+    HomomorphicArray & extend(const HomomorphicArray & other);
 
     unsigned int max_degree() const noexcept { return _max_degree; }
 
@@ -135,17 +137,17 @@ class HomomorphicArray : boost::equality_comparable<HomomorphicArray,
         set_public_element(x);
     }
 
-    BOOST_SERIALIZATION_SPLIT_MEMBER();
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
 };
 
-// Optimized homomorphic addition (XOR)
-HomomorphicArray& sum(const std::vector<HomomorphicArray> &);
+// Homomorphic addition (XOR)
+HomomorphicArray sum(const std::vector<HomomorphicArray> &);
 
-// Optimized homomorphic multiplication (AND)
-HomomorphicArray& product(const std::vector<HomomorphicArray> &);
+// Homomorphic multiplication (AND)
+HomomorphicArray product(const std::vector<HomomorphicArray> &);
 
-// Optimized ciphertexts concatenation
-HomomorphicArray& concat(const std::vector<HomomorphicArray> &);
+// Ciphertexts concatenation
+HomomorphicArray concat(const std::vector<HomomorphicArray> &);
 
 
 class CompressedCiphertext : boost::equality_comparable<CompressedCiphertext>
@@ -197,7 +199,7 @@ class CompressedCiphertext : boost::equality_comparable<CompressedCiphertext>
         initialize_oracle();
     }
 
-    BOOST_SERIALIZATION_SPLIT_MEMBER();
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
 };
 
 
@@ -247,7 +249,7 @@ class PrivateKey : boost::equality_comparable<PrivateKey>
         initialize_random_generators();
     }
 
-    BOOST_SERIALIZATION_SPLIT_MEMBER();
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
 };
 
 
