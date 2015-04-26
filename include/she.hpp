@@ -70,7 +70,7 @@ class HomomorphicArray : boost::equality_comparable<HomomorphicArray,
     explicit HomomorphicArray(std::vector<bool> plaintext) noexcept;
 
     // Construct empty ciphertext with given public element
-    HomomorphicArray(const mpz_class & x, unsigned int max_degree) noexcept;
+    HomomorphicArray(const mpz_class & x, unsigned int max_degree, unsigned int degree=1) noexcept;
 
     // Empty ctor for deserialization purposes
     HomomorphicArray() noexcept {};
@@ -90,6 +90,7 @@ class HomomorphicArray : boost::equality_comparable<HomomorphicArray,
     // Extend array
     HomomorphicArray & extend(const HomomorphicArray & other);
 
+    unsigned int degree() const noexcept { return _degree; }
     unsigned int max_degree() const noexcept { return _max_degree; }
 
     size_t size() const noexcept { return _elements.size(); }

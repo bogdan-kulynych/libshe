@@ -154,11 +154,11 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(homomorphic_array_serialization, Format, Formats)
     stringstream ss;
     {
         typename Format::oarchive oa(ss);
-        oa << array;
+        oa << BOOST_SERIALIZATION_NVP(array);
     }
     {
         typename Format::iarchive ia(ss);
-        ia >> restored_array;
+        ia >> BOOST_SERIALIZATION_NVP(restored_array);
     }
 
     BOOST_CHECK(array == restored_array);
@@ -207,6 +207,8 @@ BOOST_AUTO_TEST_CASE(homomorphic_array_bitwise_xor)
                 const auto c2 = sk.encrypt(input.p2).expand();
 
                 const auto c1_xor_c2 = c1 ^ c2;
+
+                BOOST_CHECK_EQUAL(c1_xor_c2.degree(), 1);
                 BOOST_CHECK(sk.decrypt(c1_xor_c2) == input.p1_xor_p2);
             }
 
@@ -214,14 +216,25 @@ BOOST_AUTO_TEST_CASE(homomorphic_array_bitwise_xor)
                 const auto c1 = sk.encrypt(input.p1).expand();
 
                 const auto c1_xor_p2 = c1 ^ HomomorphicArray(input.p2);
+
+                BOOST_CHECK_EQUAL(c1_xor_p2.degree(), 1);
                 BOOST_CHECK(sk.decrypt(c1_xor_p2) == input.p1_xor_p2);
             }
 
             {
-                const auto c1 = sk.encrypt(input.p1).expand();
+                const auto c2 = sk.encrypt(input.p2).expand();
 
-                const auto c1_xor_p2 = c1 ^ HomomorphicArray(input.p2);
-                BOOST_CHECK(sk.decrypt(c1_xor_p2) == input.p1_xor_p2);
+                const auto c2_xor_p1 = c2 ^ HomomorphicArray(input.p1);
+
+                BOOST_CHECK_EQUAL(c2_xor_p1.degree(), 1);
+                BOOST_CHECK(sk.decrypt(c2_xor_p1) == input.p1_xor_p2);
+            }
+
+            {
+                const auto p1_xor_p2 = HomomorphicArray(input.p1) ^ HomomorphicArray(input.p2);
+
+                BOOST_CHECK_EQUAL(p1_xor_p2.degree(), 0);
+                BOOST_CHECK(sk.decrypt(p1_xor_p2) == input.p1_xor_p2);
             }
         }
     }
@@ -230,9 +243,10 @@ BOOST_AUTO_TEST_CASE(homomorphic_array_bitwise_xor)
         vector<vector<bool> > inputs = {
             {1, 1, 1, 1, 0, 0, 1, 1},
             {0, 0, 0, 1, 0, 1, 0, 1},
-            {1, 1, 1, 1, 0, 0, 0, 1},
+            {},
+            {1, 1, 1, 1, 0, 0},
             {1, 1, 0, 0, 0, 1, 0, 1},
-            {1, 0, 0, 0, 0, 1, 1, 1},
+            {1, 0, 0, 0, 0, 1, 1, 0},
         };
 
         vector<bool> expected_result =
@@ -246,6 +260,8 @@ BOOST_AUTO_TEST_CASE(homomorphic_array_bitwise_xor)
 
             const auto result = sum(encrypted_inputs);
             const auto decrypted_result = sk.decrypt(result);
+
+            BOOST_CHECK_EQUAL(result.degree(), 1);
             BOOST_CHECK(decrypted_result == expected_result);
         }
 
@@ -257,6 +273,8 @@ BOOST_AUTO_TEST_CASE(homomorphic_array_bitwise_xor)
 
             const auto result = sum(homomorphic_inputs);
             const auto decrypted_result = sk.decrypt(result);
+
+            BOOST_CHECK_EQUAL(result.degree(), 0);
             BOOST_CHECK(decrypted_result == expected_result);
         }
     }
@@ -300,6 +318,8 @@ BOOST_AUTO_TEST_CASE(homomorphic_array_bitwise_and)
                 const auto c2 = sk.encrypt(input.p2).expand();
 
                 const auto c1_and_c2 = c1 & c2;
+
+                BOOST_CHECK_EQUAL(c1_and_c2.degree(), 2);
                 BOOST_CHECK(sk.decrypt(c1_and_c2) == input.p1_and_p2);
             }
 
@@ -307,14 +327,25 @@ BOOST_AUTO_TEST_CASE(homomorphic_array_bitwise_and)
                 const auto c1 = sk.encrypt(input.p1).expand();
 
                 const auto c1_and_p2 = c1 & HomomorphicArray(input.p2);
+
+                BOOST_CHECK_EQUAL(c1_and_p2.degree(), 1);
                 BOOST_CHECK(sk.decrypt(c1_and_p2) == input.p1_and_p2);
             }
 
             {
-                const auto c1 = sk.encrypt(input.p1).expand();
+                const auto c2 = sk.encrypt(input.p2).expand();
 
-                const auto c1_and_p2 = c1 & HomomorphicArray(input.p2);
-                BOOST_CHECK(sk.decrypt(c1_and_p2) == input.p1_and_p2);
+                const auto c2_and_p1 = c2 & HomomorphicArray(input.p1);
+
+                BOOST_CHECK_EQUAL(c2_and_p1.degree(), 1);
+                BOOST_CHECK(sk.decrypt(c2_and_p1) == input.p1_and_p2);
+            }
+
+            {
+                const auto p1_and_p2 = HomomorphicArray(input.p1) & HomomorphicArray(input.p2);
+
+                BOOST_CHECK_EQUAL(p1_and_p2.degree(), 0);
+                BOOST_CHECK(sk.decrypt(p1_and_p2) == input.p1_and_p2);
             }
         }
     }
@@ -322,8 +353,9 @@ BOOST_AUTO_TEST_CASE(homomorphic_array_bitwise_and)
     {
         vector<vector<bool> > inputs = {
             {1, 1, 1, 1, 0, 0, 1, 1},
-            {0, 0, 0, 1, 0, 1, 0, 1},
+            {0, 0, 0, 1, 0, 1},
             {1, 1, 1, 1, 0, 0, 0, 1},
+            {},
             {1, 1, 0, 1, 0, 1, 0, 1},
             {1, 0, 0, 1, 0, 1, 1, 1},
         };
@@ -339,6 +371,8 @@ BOOST_AUTO_TEST_CASE(homomorphic_array_bitwise_and)
 
             const auto result = product(encrypted_inputs);
             const auto decrypted_result = sk.decrypt(result);
+
+            BOOST_CHECK_EQUAL(result.degree(), inputs.size());
             BOOST_CHECK(decrypted_result == expected_result);
         }
 
@@ -350,6 +384,8 @@ BOOST_AUTO_TEST_CASE(homomorphic_array_bitwise_and)
 
             const auto result = product(homomorphic_inputs);
             const auto decrypted_result = sk.decrypt(result);
+
+            BOOST_CHECK_EQUAL(result.degree(), 0);
             BOOST_CHECK(decrypted_result == expected_result);
         }
     }
@@ -386,6 +422,8 @@ BOOST_AUTO_TEST_CASE(homomorphic_array_select)
         for (size_t i = 0; i < encrypted_selections.size(); ++i) {
             const auto result = encrypted_selections[i].select(arrays);
             const vector<bool> decrypted_result = sk.decrypt(result);
+
+            BOOST_CHECK_EQUAL(result.degree(), 1);
             BOOST_CHECK(decrypted_result == plain_arrays[i]);
         }
     }
@@ -399,6 +437,8 @@ BOOST_AUTO_TEST_CASE(homomorphic_array_select)
         for (size_t i = 0; i < homomorphic_selections.size(); ++i) {
             const auto result = homomorphic_selections[i].select(arrays);
             const vector<bool> decrypted_result = sk.decrypt(result);
+
+            BOOST_CHECK_EQUAL(result.degree(), 1);
             BOOST_CHECK(decrypted_result == plain_arrays[i]);
         }
     }

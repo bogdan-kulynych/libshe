@@ -17,4 +17,5 @@ struct Format {
     using oarchive = OutputArchive;
 };
 
-using Formats = boost::mpl::list< Format<text_iarchive, text_oarchive> >;
+using Formats = boost::mpl::list< Format<xml_iarchive, xml_oarchive>,
+                                  Format<text_iarchive, text_oarchive> >;

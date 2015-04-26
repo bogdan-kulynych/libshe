@@ -4,6 +4,7 @@
 #include "exceptions.hpp"
 
 using std::min;
+using std::max;
 using std::set;
 using std::vector;
 
@@ -61,8 +62,8 @@ HomomorphicArray::HomomorphicArray(vector<bool> plaintext) noexcept :
     set_public_element(2);
 }
 
-HomomorphicArray::HomomorphicArray(const mpz_class & x, unsigned int max_degree) noexcept :
-  _degree(0),
+HomomorphicArray::HomomorphicArray(const mpz_class & x, unsigned int max_degree, unsigned int degree) noexcept :
+  _degree(degree),
   _max_degree(max_degree)
 {
     set_public_element(x);
@@ -82,7 +83,9 @@ void HomomorphicArray::set_public_element(const mpz_class & x) noexcept
 
 HomomorphicArray & HomomorphicArray::operator^=(const HomomorphicArray & other)
 {
-    const auto n = min(_elements.size(), other._elements.size());
+    _degree = max(_degree, other._degree);
+
+    const size_t n = min(_elements.size(), other._elements.size());
 
     for (size_t i = 0; i < n; ++i) {
         _elements[i] += other._elements[i];
@@ -98,7 +101,9 @@ HomomorphicArray & HomomorphicArray::operator^=(const HomomorphicArray & other)
 
 HomomorphicArray & HomomorphicArray::operator&=(const HomomorphicArray & other)
 {
-    const auto n = min(_elements.size(), other._elements.size());
+    _degree = _degree + other._degree;
+
+    const size_t n = min(_elements.size(), other._elements.size());
 
     for (size_t i = 0; i < n; ++i) {
         _elements[i] *= other._elements[i];
@@ -119,13 +124,21 @@ const HomomorphicArray HomomorphicArray::equal(const std::vector<HomomorphicArra
     for (const auto & array : arrays) {
         auto difference = *this ^ array;
 
+        unsigned int current_degree = 0;
+        current_degree = difference._degree;
+
         mpz_class all = 1;
         for (const auto & element : difference._elements)
         {
             all *= (element + 1) % *_public_element_ptr;
+            current_degree += array._degree;
         }
 
         result._elements.push_back(all);
+
+        if (current_degree > result._degree) {
+            result._degree = current_degree;
+        }
     }
 
     return result;
@@ -137,13 +150,15 @@ const HomomorphicArray HomomorphicArray::select(const std::vector<HomomorphicArr
 
     for (size_t i = 0; i < min(_elements.size(), arrays.size()); ++i) {
 
-        HomomorphicArray picked(*_public_element_ptr, _max_degree);
+        HomomorphicArray selected(*_public_element_ptr, _max_degree);
 
-        for (const auto & element : arrays[i]._elements) {
-            picked._elements.push_back(element * _elements[i] % *_public_element_ptr);
+        for (const auto & selected_element : arrays[i]._elements) {
+            selected._elements.push_back(selected_element * _elements[i] % *_public_element_ptr);
         }
 
-        result ^= picked;
+        selected._degree =  _degree + arrays[i]._degree;
+
+        result ^= selected;
     }
 
     return result;
@@ -155,6 +170,8 @@ HomomorphicArray & HomomorphicArray::extend(const HomomorphicArray & other)
         _elements.push_back(element);
     }
 
+    _degree = max(_degree, other._degree);
+
     return *this;
 }
 
@@ -162,7 +179,7 @@ HomomorphicArray sum(const vector<HomomorphicArray> & arrays)
 {
     ASSERT(arrays.size() > 0, "Empty input");
 
-    HomomorphicArray result(arrays[0].public_element(), arrays[0].max_degree());
+    HomomorphicArray result(arrays[0].public_element(), arrays[0].max_degree(), 0);
 
     for (const auto & array : arrays) {
         result ^= array;
@@ -175,7 +192,7 @@ HomomorphicArray product(const vector<HomomorphicArray> & arrays)
 {
     ASSERT(arrays.size() > 0, "Empty input");
 
-    HomomorphicArray result(arrays[0].public_element(), arrays[0].max_degree());
+    HomomorphicArray result(arrays[0].public_element(), arrays[0].max_degree(), 0);
 
     for (const auto & array : arrays) {
         result &= array;
@@ -188,7 +205,7 @@ HomomorphicArray concat(const vector<HomomorphicArray> & arrays)
 {
     ASSERT(arrays.size() > 0, "Empty input");
 
-    HomomorphicArray result(arrays[0].public_element(), arrays[0].max_degree());
+    HomomorphicArray result(arrays[0].public_element(), arrays[0].max_degree(), 0);
 
     for (const auto & array : arrays) {
         result.extend(array);

@@ -20,11 +20,11 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(mpz_class_serialization, Format, Formats)
     stringstream ss;
     {
         typename Format::oarchive oa(ss);
-        oa << z;
+        oa << BOOST_SERIALIZATION_NVP(z);
     }
     {
         typename Format::iarchive ia(ss);
-        ia >> restored_z;
+        ia >> BOOST_SERIALIZATION_NVP(restored_z);
     }
 
     BOOST_CHECK(z == restored_z);

@@ -98,11 +98,11 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(parameter_set_serialization, Format, Formats)
     stringstream ss;
     {
         typename Format::oarchive oa(ss);
-        oa << params;
+        oa << BOOST_SERIALIZATION_NVP(params);
     }
     {
         typename Format::iarchive ia(ss);
-        ia >> restored_params;
+        ia >> BOOST_SERIALIZATION_NVP(restored_params);
     }
 
     BOOST_CHECK(params == restored_params);
