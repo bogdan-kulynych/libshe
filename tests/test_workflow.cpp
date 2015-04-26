@@ -21,7 +21,7 @@ using she::HomomorphicArray;
 
 BOOST_AUTO_TEST_SUITE(WorkflowSuite)
 
-BOOST_AUTO_TEST_CASE(remote_execution_simulation)
+BOOST_AUTO_TEST_CASE(sfe_simulation)
 {
     stringstream ss1;
     stringstream ss2;
@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_CASE(remote_execution_simulation)
         sk = new PrivateKey(params);
 
         // Encrypt plaintext
-        const vector<bool> plaintext = {1, 0, 1, 0, 1, 0, 1, 0};
+        const vector<bool> plaintext = {1, 0, 1, 0};
         const auto compressed_ciphertext = sk->encrypt(plaintext);
 
         text_oarchive oa1(ss1);
@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE(remote_execution_simulation)
         const HomomorphicArray ciphertext = received_compressed_ciphertext.expand();
 
         // Execute some algorithm
-        const vector<bool> another_plaintext = {1, 1, 1, 1, 1, 1, 1, 1};
+        const vector<bool> another_plaintext = {1, 1, 1, 1};
         const auto response = ciphertext ^ HomomorphicArray(another_plaintext);
 
         // Serialize result
@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE(remote_execution_simulation)
         ia2 >> received_response;
 
         const auto decrypted_response = sk->decrypt(received_response);
-        const vector<bool> expected_result = {0, 1, 0, 1, 0, 1, 0, 1};
+        const vector<bool> expected_result = {0, 1, 0, 1};
 
         BOOST_CHECK(decrypted_response == expected_result);
     }
