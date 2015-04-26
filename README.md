@@ -119,7 +119,7 @@ assert(decrypted_response == expected_result);
 
 ## License
 
-The code is distributed under the GPLv3 license.
+The code is released under the [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.html).
 
 Copyright © 2015 Bogdan Kulynych. `hello [at] bogdankulynych.me`
 
