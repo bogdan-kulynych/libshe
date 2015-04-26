@@ -83,9 +83,7 @@ const PrivateKey sk(params);
 const vector<bool> plaintext = {1, 0, 1, 0, 1, 0, 1, 0};
 const auto compressed_ciphertext = sk.encrypt();
 
-// ...
-// Serialize and send compressed ciphertext
-// ...
+// ... Serialize and send compressed ciphertext ...
 
 // Expand the ciphertext to perform operations
 const auto ciphertext = compressed_ciphertext.expand();
@@ -94,9 +92,7 @@ const auto ciphertext = compressed_ciphertext.expand();
 const vector<bool> another_plaintext = {1, 1, 1, 1, 1, 1, 1, 1};
 const auto response = ciphertext ^ HomomorphicArray(another_plaintext);
 
-// ...
-// Serialize and send back the response
-// ...
+// ... Serialize and send back the response ...
 
 // Decrypt to obtain the algorithm output
 const auto decrypted_response = sk.decrypt(response);
