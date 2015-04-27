@@ -138,7 +138,7 @@ const vector<bool> expected_result = {0, 1, 0, 1, 0, 1, 0, 1};
 assert(decrypted_response == expected_result);
 ```
 
-Note that ciphertext can't be compressed only during encryption on the client side, so cost for Server → Client communication is significantly higher than that of Client → Server communication.
+Note that ciphertext can be compressed only during encryption on the client side, so cost for Server → Client communication is significantly higher than that of Client → Server communication.
 
 
 ## License
