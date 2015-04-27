@@ -128,7 +128,7 @@ const vector<bool> another_plaintext = {1, 1, 1, 1, 1, 1, 1, 1};
 const auto response = ciphertext ^ HomomorphicArray(another_plaintext);
 ```
 
-Serializes the output and sends it back to the client.
+Serializes the output and sends it back to the client. Note that ciphertext can't be compressed on the server side, so cost for Server → Client communication is significantly higher than that of Client → Server communication.
 
 Client decrypts the response and obtains the algorithm output in plaintext:
 
