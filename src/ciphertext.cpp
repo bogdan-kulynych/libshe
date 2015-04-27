@@ -83,15 +83,20 @@ void HomomorphicArray::set_public_element(const mpz_class & x) noexcept
 
 HomomorphicArray & HomomorphicArray::operator^=(const HomomorphicArray & other)
 {
+    // If this is constructed from plaintext (therefore, noiseless), use public element from rhs
+    const auto & public_element = (_degree == 0) ? *other._public_element_ptr : *_public_element_ptr;
+
     _degree = max(_degree, other._degree);
 
     const size_t n = min(_elements.size(), other._elements.size());
 
+    // Do natural arithmetic operation modulo public element
     for (size_t i = 0; i < n; ++i) {
         _elements[i] += other._elements[i];
-        _elements[i] %= *_public_element_ptr;
+        _elements[i] %= public_element;
     }
 
+    // If sizes don't match pad with zeros from the right
     for (size_t i = n; i < other._elements.size(); ++i) {
         _elements.push_back(other._elements[i]);
     }
@@ -101,15 +106,20 @@ HomomorphicArray & HomomorphicArray::operator^=(const HomomorphicArray & other)
 
 HomomorphicArray & HomomorphicArray::operator&=(const HomomorphicArray & other)
 {
+    // If this is constructed from plaintext (therefore, noiseless), use public element from rhs
+    const auto & public_element = (_degree == 0) ? *other._public_element_ptr : *_public_element_ptr;
+
     _degree = _degree + other._degree;
 
     const size_t n = min(_elements.size(), other._elements.size());
 
+    // Do natural arithmetic operation modulo public element
     for (size_t i = 0; i < n; ++i) {
         _elements[i] *= other._elements[i];
-        _elements[i] %= *_public_element_ptr;
+        _elements[i] %= public_element;
     }
 
+    // If sizes don't match pad with ones from the right
     for (size_t i = n; i < other._elements.size(); ++i) {
         _elements.push_back(other._elements[i]);
     }
@@ -119,23 +129,28 @@ HomomorphicArray & HomomorphicArray::operator&=(const HomomorphicArray & other)
 
 const HomomorphicArray HomomorphicArray::equal(const std::vector<HomomorphicArray> & arrays) const
 {
-    HomomorphicArray result(*_public_element_ptr, _max_degree);
+    ASSERT(arrays.size() > 0, "Empty input");
+
+    // If this is constructed from plaintext (therefore, noiseless), use public element from first rhs array
+    const auto & public_element = (_degree == 0) ? *(arrays.front()._public_element_ptr) : *_public_element_ptr;
+
+    HomomorphicArray result(public_element, _max_degree, 0);
 
     for (const auto & array : arrays) {
-        auto difference = *this ^ array;
 
-        unsigned int current_degree = 0;
-        current_degree = difference._degree;
+        // xor is a kind of difference in Z2
+        const auto difference = *this ^ array;
 
         mpz_class all = 1;
         for (const auto & element : difference._elements)
         {
-            all *= (element + 1) % *_public_element_ptr;
-            current_degree += array._degree;
+            all *= (element + 1);
+            all %= public_element;
         }
 
         result._elements.push_back(all);
 
+        auto current_degree = difference._degree * difference._elements.size();
         if (current_degree > result._degree) {
             result._degree = current_degree;
         }
@@ -146,14 +161,18 @@ const HomomorphicArray HomomorphicArray::equal(const std::vector<HomomorphicArra
 
 const HomomorphicArray HomomorphicArray::select(const std::vector<HomomorphicArray> & arrays) const
 {
-    HomomorphicArray result(*_public_element_ptr, _max_degree);
+    ASSERT(arrays.size() > 0, "Empty input");
+
+    // If this is constructed from plaintext (therefore, noiseless), use public element from first rhs array
+    const auto & public_element = (_degree == 0) ? *(arrays.front()._public_element_ptr) : *_public_element_ptr;
+    HomomorphicArray result(public_element, _max_degree);
 
     for (size_t i = 0; i < min(_elements.size(), arrays.size()); ++i) {
 
-        HomomorphicArray selected(*_public_element_ptr, _max_degree);
+        HomomorphicArray selected(public_element, _max_degree);
 
         for (const auto & selected_element : arrays[i]._elements) {
-            selected._elements.push_back(selected_element * _elements[i] % *_public_element_ptr);
+            selected._elements.push_back((selected_element * _elements[i]) % public_element);
         }
 
         selected._degree =  _degree + arrays[i]._degree;
@@ -192,7 +211,7 @@ HomomorphicArray product(const vector<HomomorphicArray> & arrays)
 {
     ASSERT(arrays.size() > 0, "Empty input");
 
-    HomomorphicArray result(arrays[0].public_element(), arrays[0].max_degree(), 0);
+    HomomorphicArray result(arrays.front().public_element(), arrays.front().max_degree(), 0);
 
     for (const auto & array : arrays) {
         result &= array;
@@ -205,7 +224,7 @@ HomomorphicArray concat(const vector<HomomorphicArray> & arrays)
 {
     ASSERT(arrays.size() > 0, "Empty input");
 
-    HomomorphicArray result(arrays[0].public_element(), arrays[0].max_degree(), 0);
+    HomomorphicArray result(arrays.front().public_element(), arrays.front().max_degree(), 0);
 
     for (const auto & array : arrays) {
         result.extend(array);
