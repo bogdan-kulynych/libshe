@@ -16,8 +16,11 @@ namespace she
 
 CSPRNG::CSPRNG() noexcept : _generator(gmp_randinit_default)
 {
+    // Generate 64-bit seed
     random_device dev(RANDOM_DEVICE);
-    _generator.seed(dev());
+    mpz_class seed32 = dev();
+    mpz_class seed64 = seed32 << 32 | dev();
+    _generator.seed(seed32);
 }
 
 mpz_class
