@@ -1,6 +1,6 @@
 # libshe
 
-[![Build Status](https://travis-ci.org/bogdan-kulynych/libshe.svg?branch=master)](https://travis-ci.org/bogdan-kulynych/libshe) [![Coverage Status](https://coveralls.io/repos/bogdan-kulynych/libshe/badge.svg?branch=master)](https://coveralls.io/r/bogdan-kulynych/libshe?branch=master) [![Join the chat at https://gitter.im/bogdan-kulynych/libshe](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/bogdan-kulynych/libshe?utm_source=badge&utm_medium=badge&utm_content=badge)
+[![Build Status](https://travis-ci.org/bogdan-kulynych/libshe.svg?branch=master)](https://travis-ci.org/bogdan-kulynych/libshe) [![Coverage Status](https://coveralls.io/repos/bogdan-kulynych/libshe/badge.svg?branch=master)](https://coveralls.io/r/bogdan-kulynych/libshe?branch=master)
 
 Symmetric homomorphic encryption library.
 
