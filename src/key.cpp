@@ -6,8 +6,8 @@ using std::cout;
 using std::endl;
 
 #include "she.hpp"
-#include "defs.hpp"
-#include "exceptions.hpp"
+#include "she/defs.hpp"
+#include "she/exceptions.hpp"
 
 using std::random_device;
 using std::vector;

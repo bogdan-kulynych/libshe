@@ -8,7 +8,7 @@
 
 #include <gmpxx.h>
 
-#include "defs.hpp"
+#include "she/defs.hpp"
 
 
 namespace boost { namespace serialization {

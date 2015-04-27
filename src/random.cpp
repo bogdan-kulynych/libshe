@@ -1,7 +1,7 @@
 #include <random>
 
-#include "random.hpp"
-#include "defs.hpp"
+#include "she/random.hpp"
+#include "she/defs.hpp"
 
 using std::out_of_range;
 using std::random_device;

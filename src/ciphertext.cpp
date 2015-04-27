@@ -1,7 +1,7 @@
 #include <cmath>
 
 #include "she.hpp"
-#include "exceptions.hpp"
+#include "she/exceptions.hpp"
 
 using std::min;
 using std::max;

@@ -1,6 +1,6 @@
 #include <boost/test/unit_test.hpp>
 
-#include "exceptions.hpp"
+#include "she/exceptions.hpp"
 
 using she::precondition_not_satisfied;
 

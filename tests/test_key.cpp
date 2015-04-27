@@ -3,7 +3,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "she.hpp"
-#include "exceptions.hpp"
+#include "she/exceptions.hpp"
 #include "serialization_formats.hpp"
 
 using std::abs;

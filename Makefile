@@ -1,19 +1,21 @@
 SHELL              := /bin/bash
 
 BOOSTDIR           := /usr/local/lib
+PREFIX             := /usr/local
 
 CXXFLAGS           := -Wall -fPIC -std=c++11 -pedantic
 
-LIBS               := -L$(BOOSTDIR) -lboost_serialization -lstdc++ -lgmp
-TESTLIBS           := -L$(BOOSTDIR) -lboost_unit_test_framework
-INC                := -Iinclude
-
+INCDIR             := include
 SRCDIR             := src
 BUILDDIR           := build
 TESTDIR            := tests
 
-LIBTARGET          := $(BUILDDIR)/libshe.so
-TESTTARGET         := $(BUILDDIR)/runtests
+LIBS               := -L$(BOOSTDIR) -lboost_serialization -lstdc++ -lgmp
+TESTLIBS           := -L$(BOOSTDIR) -lboost_unit_test_framework
+INC                := -I$(INCDIR)
+
+LIBTARGET          := libshe.so
+TESTTARGET         := runtests
 
 LIBSOURCES         := $(wildcard $(SRCDIR)/*.cpp)
 TESTSOURCES        := $(wildcard $(TESTDIR)/*.cpp)
@@ -30,9 +32,9 @@ all: library
 
 .PHONY: library
 library: CXXFLAGS += -O3
-library: $(LIBTARGET)
+library: $(BUILDDIR)/$(LIBTARGET)
 
-$(LIBTARGET): $(LIBOBJECTS)
+$(BUILDDIR)/$(LIBTARGET): $(LIBOBJECTS)
 	@echo "Link: $^"
 	@$(CXX) $(LDFLAGS) -shared $^ $(LIBS) -o $@
 
@@ -44,16 +46,10 @@ $(LIBOBJECTS): $(BUILDDIR)/%.o: %.cpp
 .PHONY: tests
 tests: CXXFLAGS += -O0 -DDEBUG -g --coverage
 tests: LDFLAGS = --coverage
-tests: $(TESTTARGET)
-	@$(TESTTARGET) $(TESTOPTS)
+tests: $(BUILDDIR)/$(TESTTARGET)
+	@$(BUILDDIR)/$(TESTTARGET) $(TESTOPTS)
 
-.PHONY: coverage
-coverage:
-	@lcov --gcov-tool $(GCOV) --directory . --capture --output-file $(COVERAGEFILE)
-	@lcov --gcov-tool $(GCOV) --remove $(COVERAGEFILE) 'tests/*' '/usr/*' --output-file $(COVERAGEFILE) 2> /dev/null
-	@lcov --gcov-tool $(GCOV) --list $(COVERAGEFILE)
-
-$(TESTTARGET): $(TESTOBJECTS) $(LIBOBJECTS)
+$(BUILDDIR)/$(TESTTARGET): $(TESTOBJECTS) $(LIBOBJECTS)
 	@echo "Link: $^"
 	@$(CXX) $(LDFLAGS) $^ $(TESTLIBS) $(LIBS) -o $@
 
@@ -61,6 +57,34 @@ $(TESTOBJECTS): $(BUILDDIR)/%.o: %.cpp
 	@echo "Compile: $^"
 	@mkdir -p $(BUILDDIR)/$(TESTDIR)
 	@$(CXX) $(CXXFLAGS) $(INC) -c $^ -o $@
+
+.PHONY: coverage
+coverage:
+	@lcov --gcov-tool $(GCOV) --directory . --capture --output-file $(COVERAGEFILE)
+	@lcov --gcov-tool $(GCOV) --remove $(COVERAGEFILE) 'tests/*' '/usr/*' --output-file $(COVERAGEFILE) 2> /dev/null
+	@lcov --gcov-tool $(GCOV) --list $(COVERAGEFILE)
+	@genhtml $(COVERAGEFILE) --output-directory $(BUILDDIR)/coverage
+
+.PHONY: install
+install: $(BUILDDIR)/$(LIBTARGET)
+	@echo "Install:"
+	@mkdir -p $(PREFIX)/include
+	@mkdir -p $(PREFIX)/lib
+	cp -rf $(INCDIR) -t $(PREFIX)
+	cp -f $(BUILDDIR)/$(LIBTARGET) -t $(PREFIX)/lib/
+	ldconfig
+
+define \n
+
+
+endef
+
+.PHONY: uninstall
+uninstall:
+	@echo "Uninstall:"
+	rm $(PREFIX)/lib/$(LIBTARGET)
+	$(foreach header,$(shell ls -1 $(INCDIR)),rm -r $(PREFIX)/include/$(header)${\n})
+	ldconfig
 
 .PHONY: clean
 clean:

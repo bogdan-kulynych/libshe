@@ -5,7 +5,7 @@
 
 #include <gmpxx.h>
 
-#include "random.hpp"
+#include "she/random.hpp"
 
 using std::vector;
 using std::abs;

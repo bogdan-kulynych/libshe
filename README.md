@@ -30,7 +30,7 @@ _Warning_. This is experimental software. **It is not to be used in mission-crit
 ### Roadmap
 
 - [x] CI and coverage reports
-- [ ] Installation
+- [x] Installation
 - [ ] Timing and memory estimates
 - [ ] Comparison with [HElib](https://github.com/shaih/HElib)
 - [ ] Documentation

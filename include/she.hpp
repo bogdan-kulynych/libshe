@@ -13,8 +13,8 @@
 
 #include <gmpxx.h>
 
-#include "random.hpp"
-#include "serializations.hpp"
+#include "she/random.hpp"
+#include "she/serializations.hpp"
 
 
 namespace she
