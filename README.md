@@ -48,22 +48,43 @@ _Warning_. This is experimental software. **It is not to be used in mission-crit
 
 ### Building
 
-Run tests
+Build and install `libshe.so` library and headers:
+
+```
+make
+sudo make install
+```
+
+Run tests:
 
 ```
 make tests
 ```
 
-Produce a library in `build` directory
+_Note_. Running tests will compile sources with debug options. Do `make clean` before installing if tests were run previously.
+
+
+## Usage
+
+### Building
+
+Use C++11 and link against _GMP_ and _Boost Serialization_ when building your program:
 
 ```
-make
+-std=c++11 -lgmp -lboost_serialization -lshe
 ```
 
-_Note_. Default path to boost libraries is `/usr/local/lib`. Set `BOOSTDIR` env variable to change.
+Include libshe in your sources:
 
+```cpp
+#include <she.hpp>
 
-## Usage example
+using she::ParameterSet;
+using she::PrivateKey;
+// ...
+```
+
+### Example
 
 The following example assumes a client and a server that are engaged in a two-party secure function evaluation protocol.
 
