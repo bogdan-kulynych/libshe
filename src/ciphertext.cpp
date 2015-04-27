@@ -81,7 +81,7 @@ void HomomorphicArray::set_public_element(const mpz_class & x) noexcept
     _public_element_ptr = result.first;
 }
 
-HomomorphicArray & HomomorphicArray::operator^=(const HomomorphicArray & other)
+HomomorphicArray & HomomorphicArray::operator^=(const HomomorphicArray & other) noexcept
 {
     // If this is constructed from plaintext (therefore, noiseless), use public element from rhs
     const auto & public_element = (_degree == 0) ? *other._public_element_ptr : *_public_element_ptr;
@@ -104,7 +104,7 @@ HomomorphicArray & HomomorphicArray::operator^=(const HomomorphicArray & other)
     return *this;
 }
 
-HomomorphicArray & HomomorphicArray::operator&=(const HomomorphicArray & other)
+HomomorphicArray & HomomorphicArray::operator&=(const HomomorphicArray & other) noexcept
 {
     // If this is constructed from plaintext (therefore, noiseless), use public element from rhs
     const auto & public_element = (_degree == 0) ? *other._public_element_ptr : *_public_element_ptr;
@@ -138,9 +138,11 @@ const HomomorphicArray HomomorphicArray::equal(const std::vector<HomomorphicArra
 
     for (const auto & array : arrays) {
 
-        // xor is a kind of difference in Z2
+        // Find difference (xor) between this and array
         const auto difference = *this ^ array;
 
+        // Multiply (and) all elements of the difference array + 1
+        // The result will decrypt to 1 iff all elements of this and array are equal
         mpz_class all = 1;
         for (const auto & element : difference._elements)
         {
@@ -150,6 +152,7 @@ const HomomorphicArray HomomorphicArray::equal(const std::vector<HomomorphicArra
 
         result._elements.push_back(all);
 
+        // Set result degree to maximum degree of arrays
         auto current_degree = difference._degree * difference._elements.size();
         if (current_degree > result._degree) {
             result._degree = current_degree;
@@ -171,6 +174,8 @@ const HomomorphicArray HomomorphicArray::select(const std::vector<HomomorphicArr
 
         HomomorphicArray selected(public_element, _max_degree);
 
+        // Multiply i-th element of this by all of the elements in array
+        // The result will be decrypt to either original array or to array of zeros
         for (const auto & selected_element : arrays[i]._elements) {
             selected._elements.push_back((selected_element * _elements[i]) % public_element);
         }
@@ -183,7 +188,7 @@ const HomomorphicArray HomomorphicArray::select(const std::vector<HomomorphicArr
     return result;
 }
 
-HomomorphicArray & HomomorphicArray::extend(const HomomorphicArray & other)
+HomomorphicArray & HomomorphicArray::extend(const HomomorphicArray & other) noexcept
 {
     for (const auto & element : other._elements) {
         _elements.push_back(element);

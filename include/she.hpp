@@ -76,10 +76,10 @@ class HomomorphicArray : boost::equality_comparable<HomomorphicArray,
     HomomorphicArray() noexcept {};
 
     // Homomorphic element-wise addition (XOR)
-    HomomorphicArray & operator^=(const HomomorphicArray &);
+    HomomorphicArray & operator^=(const HomomorphicArray &) noexcept;
 
     // Homomorphic element-wise multiplication (AND)
-    HomomorphicArray & operator&=(const HomomorphicArray &);
+    HomomorphicArray & operator&=(const HomomorphicArray &) noexcept;
 
     // Homomorphic equality comparison
     const HomomorphicArray equal(const std::vector<HomomorphicArray> &) const;
@@ -88,7 +88,7 @@ class HomomorphicArray : boost::equality_comparable<HomomorphicArray,
     const HomomorphicArray select(const std::vector<HomomorphicArray> &) const;
 
     // Extend array
-    HomomorphicArray & extend(const HomomorphicArray & other);
+    HomomorphicArray & extend(const HomomorphicArray & other) noexcept;
 
     unsigned int degree() const noexcept { return _degree; }
     unsigned int max_degree() const noexcept { return _max_degree; }
