@@ -459,6 +459,11 @@ BOOST_AUTO_TEST_CASE(homomorphic_array_equal)
         arrays.push_back(HomomorphicArray(plain_array));
     }
 
+    vector<HomomorphicArray> encrypted_arrays;
+    for (const auto & plain_array : plain_arrays) {
+        encrypted_arrays.push_back(sk.encrypt(plain_array).expand());
+    }
+
     const vector<vector<bool> > plain_inputs = {
         vector<bool>{1, 1, 0, 0},
         vector<bool>{1, 1, 1, 1},
@@ -482,6 +487,38 @@ BOOST_AUTO_TEST_CASE(homomorphic_array_equal)
         for (size_t i = 0; i < encrypted_inputs.size(); ++i) {
             const auto result = encrypted_inputs[i].equal(arrays);
             const vector<bool> decrypted_result = sk.decrypt(result);
+
+            BOOST_CHECK_EQUAL(result.degree(), 4);
+            BOOST_CHECK(decrypted_result == expected_results[i]);
+        }
+    }
+
+    {
+        vector<HomomorphicArray> homomorphic_inputs;
+        for (const auto & plain_input : plain_inputs) {
+            homomorphic_inputs.push_back(HomomorphicArray(plain_input));
+        }
+
+        for (size_t i = 0; i < homomorphic_inputs.size(); ++i) {
+            const auto result = homomorphic_inputs[i].equal(encrypted_arrays);
+            const vector<bool> decrypted_result = sk.decrypt(result);
+
+            BOOST_CHECK_EQUAL(result.degree(), 4);
+            BOOST_CHECK(decrypted_result == expected_results[i]);
+        }
+    }
+
+    {
+        vector<HomomorphicArray> encrypted_inputs;
+        for (const auto & plain_input : plain_inputs) {
+            encrypted_inputs.push_back(sk.encrypt(plain_input).expand());
+        }
+
+        for (size_t i = 0; i < encrypted_inputs.size(); ++i) {
+            const auto result = encrypted_inputs[i].equal(encrypted_arrays);
+            const vector<bool> decrypted_result = sk.decrypt(result);
+
+            BOOST_CHECK_EQUAL(result.degree(), 4);
             BOOST_CHECK(decrypted_result == expected_results[i]);
         }
     }
@@ -495,6 +532,8 @@ BOOST_AUTO_TEST_CASE(homomorphic_array_equal)
         for (size_t i = 0; i < homomorphic_inputs.size(); ++i) {
             const auto result = homomorphic_inputs[i].equal(arrays);
             const vector<bool> decrypted_result = sk.decrypt(result);
+
+            BOOST_CHECK_EQUAL(result.degree(), 0);
             BOOST_CHECK(decrypted_result == expected_results[i]);
         }
     }
