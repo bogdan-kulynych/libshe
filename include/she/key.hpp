@@ -35,9 +35,12 @@ public:
     unsigned int ciphertext_size_bits;
     unsigned int oracle_seed;
 
+    // Generate parameter set for given `security`, random oracle `seed`, that allows to perform at least
+    // `circuit_mult_size homomorphic multiplications on ciphertexts
     static const ParameterSet
     generate_parameter_set(unsigned int security, unsigned int circuit_mult_size, unsigned int seed);
 
+    // Approximate number of homomorphic multiplications that can be performed
     unsigned int degree() const noexcept { return private_key_size_bits / noise_size_bits; }
 
     bool operator==(const ParameterSet &) const noexcept;
@@ -56,6 +59,7 @@ public:
     }
 };
 
+
 class CompressedCiphertext;
 class HomomorphicArray;
 
@@ -68,7 +72,10 @@ class PrivateKey : boost::equality_comparable<PrivateKey>
     // Empty ctor for deserialization purposes
     PrivateKey() noexcept {};
 
+    // Produce a compressed ciphertext from a plaintext
     CompressedCiphertext encrypt(const std::vector<bool> & bits) const noexcept;
+
+    // Decrypt an expanded ciphertext
     std::vector<bool> decrypt(const HomomorphicArray &) const noexcept;
 
     const ParameterSet & parameter_set() const noexcept { return _parameter_set; };

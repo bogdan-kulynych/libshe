@@ -52,14 +52,20 @@ class HomomorphicArray : boost::equality_comparable<HomomorphicArray,
     // Extend array
     HomomorphicArray & extend(const HomomorphicArray & other) noexcept;
 
+    // Reflects how noisy the ciphertexts, equals the number of homomorphic multiplications performed since encryption
     unsigned int degree() const noexcept { return _degree; }
+
+    // Approximate maximum number of homomorphic multiplications
     unsigned int max_degree() const noexcept { return _max_degree; }
 
+    // Ciphertext size
     size_t size() const noexcept { return _elements.size(); }
 
+    // Encrypted bits
     const std::vector<mpz_class>& elements() const noexcept { return _elements; }
     std::vector<mpz_class>& elements() noexcept { return _elements; }
 
+    // Public element used in homomorphic operations
     const mpz_class & public_element() const noexcept { return *_public_element_ptr; }
 
     // Representation comparison (non-homomorphic)
@@ -123,11 +129,14 @@ class CompressedCiphertext : boost::equality_comparable<CompressedCiphertext>
     // Expand ciphertext
     HomomorphicArray expand() const noexcept;
 
+    // Ciphertext size
     size_t size() const noexcept { return _elements_deltas.size(); }
 
+    // Compressions of encrypted bits
     const std::vector<mpz_class> & elements_deltas() const noexcept { return _elements_deltas; }
     const mpz_class & public_element_delta() const noexcept { return _public_element_delta; }
 
+    // Representation comparison
     bool operator== (const CompressedCiphertext &) const noexcept;
 
  private:
