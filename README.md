@@ -128,7 +128,7 @@ const vector<bool> another_plaintext = {1, 1, 1, 1, 1, 1, 1, 1};
 const auto response = ciphertext ^ HomomorphicArray(another_plaintext);
 ```
 
-Serializes the output and sends it back to the client. Note that ciphertext can't be compressed on the server side, so cost for Server → Client communication is significantly higher than that of Client → Server communication.
+Serializes the output and sends it back to the client.
 
 Client decrypts the response and obtains the algorithm output in plaintext:
 
@@ -137,6 +137,9 @@ const auto decrypted_response = sk.decrypt(response);
 const vector<bool> expected_result = {0, 1, 0, 1, 0, 1, 0, 1};
 assert(decrypted_response == expected_result);
 ```
+
+Note that ciphertext can't be compressed only during encryption on the client side, so cost for Server → Client communication is significantly higher than that of Client → Server communication.
+
 
 ## License
 
