@@ -2,12 +2,12 @@
 
 [![Build Status](https://travis-ci.org/bogdan-kulynych/libshe.svg?branch=master)](https://travis-ci.org/bogdan-kulynych/libshe) [![Coverage Status](https://coveralls.io/repos/bogdan-kulynych/libshe/badge.svg?branch=master)](https://coveralls.io/r/bogdan-kulynych/libshe?branch=master)
 
-Symmetric homomorphic encryption library.
+Symmetric somewhat homomorphic encryption library.
 
 
 ## Introduction
 
-Homomorphic encryption is a kind of encryption that allows to execute functions over the ciphertexts without decrypting them. This library implements a symmetric variant of originally asymmetric homomorphic encryption scheme over the integers by van Dijk et al. [(DGHV10)][DGHV10] using ciphertext compression techniques from [(CNT11)][CNT11]. The symmetricity of the scheme means that only the private key is used to encrypt and decrypt ciphertexts. A relatively small public element, however, is used in homomorphic operations, but it is not a real public key.
+Fully homomorphic encryption is a kind of encryption that allows to execute functions over the ciphertexts without decrypting them. This library implements a symmetric variant of originally asymmetric somewhat homomorphic encryption scheme over the integers by van Dijk et al. [(DGHV10)][DGHV10] using ciphertext compression techniques from [(CNT11)][CNT11]. The symmetricity of the scheme means that only the private key is used to encrypt and decrypt ciphertexts. A relatively small public element, however, is used in homomorphic operations, but it is not a real public key.
 
 Such scheme is useful in secure function evaluation setting, where a client encrypts an input to an algorithm using their private key, sends it to a server which executes an algorithm homorphically, and sends the output back to the client. The client then obtains the output of the algorithm by decrypting server response using the private key.
 
