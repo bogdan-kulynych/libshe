@@ -285,6 +285,11 @@ BOOST_AUTO_TEST_CASE(array_select)
         plaintext_arrays.push_back(PlaintextArray(raw_plaintext_array));
     }
 
+    vector<EncryptedArray> encrypted_arrays;
+    for (const auto & raw_plaintext_array : raw_plaintext_arrays) {
+        encrypted_arrays.push_back(sk.encrypt(raw_plaintext_array).expand());
+    }
+
     vector<vector<bool> > raw_plaintext_selections = {
         {1, 0, 0, 0},
         {0, 1, 0, 0},
@@ -292,12 +297,27 @@ BOOST_AUTO_TEST_CASE(array_select)
         {0, 0, 0, 1},
     };
 
-    {
-        vector<EncryptedArray> encrypted_selections;
-        for (const auto & raw_plaintext_selection : raw_plaintext_selections) {
-            encrypted_selections.push_back(sk.encrypt(raw_plaintext_selection).expand());
-        }
+    vector<EncryptedArray> encrypted_selections;
+    for (const auto & raw_plaintext_selection : raw_plaintext_selections) {
+        encrypted_selections.push_back(sk.encrypt(raw_plaintext_selection).expand());
+    }
 
+    vector<PlaintextArray> plaintext_selections;
+    for (const auto & raw_plaintext_selection : raw_plaintext_selections) {
+        plaintext_selections.push_back(PlaintextArray(raw_plaintext_selection));
+    }
+
+    {
+        for (size_t i = 0; i < encrypted_selections.size(); ++i) {
+            const auto result = encrypted_selections[i].select(encrypted_arrays);
+            const vector<bool> decrypted_result = sk.decrypt(result);
+
+            BOOST_CHECK_EQUAL(result.degree(), 2);
+            BOOST_CHECK(decrypted_result == plaintext_arrays[i].elements());
+        }
+    }
+
+    {
         for (size_t i = 0; i < encrypted_selections.size(); ++i) {
             const auto result = encrypted_selections[i].select(plaintext_arrays);
             const vector<bool> decrypted_result = sk.decrypt(result);
@@ -308,11 +328,16 @@ BOOST_AUTO_TEST_CASE(array_select)
     }
 
     {
-        vector<PlaintextArray> plaintext_selections;
-        for (const auto & raw_plaintext_selection : raw_plaintext_selections) {
-            plaintext_selections.push_back(PlaintextArray(raw_plaintext_selection));
-        }
+        for (size_t i = 0; i < plaintext_selections.size(); ++i) {
+            const auto result = plaintext_selections[i].select(encrypted_arrays);
+            const vector<bool> decrypted_result = sk.decrypt(result);
 
+            BOOST_CHECK_EQUAL(result.degree(), 1);
+            BOOST_CHECK(decrypted_result == plaintext_arrays[i].elements());
+        }
+    }
+
+    {
         for (size_t i = 0; i < plaintext_selections.size(); ++i) {
             const auto result = plaintext_selections[i].select(plaintext_arrays);
             BOOST_CHECK(result.elements() == plaintext_arrays[i].elements());
@@ -347,6 +372,16 @@ BOOST_AUTO_TEST_CASE(array_equal)
         vector<bool>{1, 0, 1, 0},
     };
 
+    vector<PlaintextArray> plaintext_inputs;
+    for (const auto & raw_plaintext_input : raw_plaintext_inputs) {
+        plaintext_inputs.push_back(PlaintextArray(raw_plaintext_input));
+    }
+
+    vector<EncryptedArray> encrypted_inputs;
+    for (const auto & raw_plaintext_input : raw_plaintext_inputs) {
+        encrypted_inputs.push_back(sk.encrypt(raw_plaintext_input).expand());
+    }
+
     const vector<vector<bool> > expected_results = {
         {0, 0, 0, 0},
         {1, 0, 0, 0},
@@ -355,11 +390,6 @@ BOOST_AUTO_TEST_CASE(array_equal)
     };
 
     {
-        vector<EncryptedArray> encrypted_inputs;
-        for (const auto & raw_plaintext_input : raw_plaintext_inputs) {
-            encrypted_inputs.push_back(sk.encrypt(raw_plaintext_input).expand());
-        }
-
         for (size_t i = 0; i < encrypted_inputs.size(); ++i) {
             const auto result = encrypted_inputs[i].equal(encrypted_arrays);
             const vector<bool> decrypted_result = sk.decrypt(result);
@@ -370,10 +400,6 @@ BOOST_AUTO_TEST_CASE(array_equal)
     }
 
     {
-        vector<PlaintextArray> plaintext_inputs;
-        for (const auto & raw_plaintext_input : raw_plaintext_inputs) {
-            plaintext_inputs.push_back(PlaintextArray(raw_plaintext_input));
-        }
 
         for (size_t i = 0; i < plaintext_inputs.size(); ++i) {
             const auto result = plaintext_inputs[i].equal(encrypted_arrays);
@@ -385,26 +411,16 @@ BOOST_AUTO_TEST_CASE(array_equal)
     }
 
     {
-        vector<EncryptedArray> encrypted_inputs;
-        for (const auto & raw_plaintext_input : raw_plaintext_inputs) {
-            encrypted_inputs.push_back(sk.encrypt(raw_plaintext_input).expand());
-        }
-
         for (size_t i = 0; i < encrypted_inputs.size(); ++i) {
-            const auto result = encrypted_inputs[i].equal(encrypted_arrays);
+            const auto result = encrypted_inputs[i].equal(plaintext_arrays);
             const vector<bool> decrypted_result = sk.decrypt(result);
 
-            BOOST_CHECK_EQUAL(result.degree(), 4);
+            BOOST_CHECK_EQUAL(result.degree(), 1);
             BOOST_CHECK(decrypted_result == expected_results[i]);
         }
     }
 
     {
-        vector<PlaintextArray> plaintext_inputs;
-        for (const auto & raw_plaintext_input : raw_plaintext_inputs) {
-            plaintext_inputs.push_back(PlaintextArray(raw_plaintext_input));
-        }
-
         for (size_t i = 0; i < plaintext_inputs.size(); ++i) {
             const auto result = plaintext_inputs[i].equal(plaintext_arrays);
             BOOST_CHECK(result.elements() == expected_results[i]);
