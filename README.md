@@ -39,6 +39,8 @@ _Warning_. This is experimental software. **It is not to be used in mission-crit
 
 ## Installation
 
+You can consult the `.travis.yml` for concrete installation commands on Debian-based systems.
+
 ### Requirements
 
 - gcc >= 4.8
