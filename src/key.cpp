@@ -40,8 +40,8 @@ namespace she
     const ParameterSet
     ParameterSet::generate_parameter_set(unsigned int security, unsigned int circuit_mult_size, unsigned int seed)
     {
-        ASSERT(security > 0, "Security should be greaterthan 0");
-        ASSERT(security > 0, "Multiplicative circuit size should be greater than 0");
+        ASSERT(security > 0, "Security parameter should be greater than 0");
+        ASSERT(circuit_mult_size > 0, "Multiplicative circuit size should be greater than 0");
 
         unsigned int rho = 2 * security,
                      eta = security * security + security * circuit_mult_size,
