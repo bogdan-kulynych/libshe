@@ -123,7 +123,7 @@ namespace she
         return result;
     }
 
-    vector<bool> PrivateKey::decrypt(const HomomorphicArray & array) const noexcept
+    vector<bool> PrivateKey::decrypt(const EncryptedArray & array) const noexcept
     {
         _oracle->reset();
 

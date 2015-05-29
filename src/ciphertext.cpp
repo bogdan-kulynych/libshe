@@ -12,79 +12,107 @@ using std::vector;
 namespace she
 {
 
-CompressedCiphertext::CompressedCiphertext(const ParameterSet & params) noexcept :
-  _parameter_set(params)
+PlaintextArray & PlaintextArray::operator^=(const PlaintextArray & other) noexcept
 {
-    initialize_oracle();
-}
+    const size_t n = min(_elements.size(), other._elements.size());
 
-void CompressedCiphertext::initialize_oracle() const noexcept
-{
-    _oracle.reset(new RandomOracle{_parameter_set.ciphertext_size_bits, _parameter_set.oracle_seed});
-}
-
-bool CompressedCiphertext::operator==(const CompressedCiphertext & other) const noexcept
-{
-    return (_parameter_set == other._parameter_set)
-        && (_public_element_delta == other._public_element_delta)
-        && (_elements_deltas == other._elements_deltas);
-}
-
-HomomorphicArray CompressedCiphertext::expand() const noexcept
-{
-    _oracle->reset();
-
-    // Restore public element
-    const auto & oracle_output = _oracle->next();
-    const auto public_element = oracle_output - _public_element_delta;
-
-    HomomorphicArray result(public_element, _parameter_set.degree());
-
-    // Restore ciphertext elements
-    for (const auto & delta : _elements_deltas) {
-        const auto & oracle_output = _oracle->next();
-        result._elements.push_back(oracle_output - delta);
+    // Do bit-wise XOR
+    for (size_t i = 0; i < n; ++i) {
+        _elements[i] = _elements[i] ^ other._elements[i];
     }
 
-    return result;
-}
-
-
-std::set<mpz_class> HomomorphicArray::public_elements = {};
-
-HomomorphicArray::HomomorphicArray(vector<bool> plaintext) noexcept :
-  _degree(0),
-  _max_degree(0)
-{
-    for(const bool bit : plaintext) {
-        _elements.push_back(bit);
+    // If sizes don't match pad with zeros from the right
+    for (size_t i = n; i < other._elements.size(); ++i) {
+        _elements.push_back(other._elements[i]);
     }
-    set_public_element(2);
+
+    return *this;
 }
 
-HomomorphicArray::HomomorphicArray(const mpz_class & x, unsigned int max_degree, unsigned int degree) noexcept :
+PlaintextArray & PlaintextArray::operator&=(const PlaintextArray & other) noexcept
+{
+    const size_t n = min(_elements.size(), other._elements.size());
+
+    // Do bit-wise AND
+    for (size_t i = 0; i < n; ++i) {
+        _elements[i] = _elements[i] & other._elements[i];
+    }
+
+    // If sizes don't match pad with ones from the right
+    for (size_t i = n; i < other._elements.size(); ++i) {
+        _elements.push_back(other._elements[i]);
+    }
+
+    return *this;
+}
+
+PlaintextArray & PlaintextArray::extend(const PlaintextArray & other) noexcept
+{
+    for (const auto & element : other._elements) {
+        _elements.push_back(element);
+    }
+
+    return *this;
+}
+
+bool PlaintextArray::operator==(const PlaintextArray & other) const noexcept
+{
+    return _elements == other._elements;
+}
+
+std::set<mpz_class> EncryptedArray::public_elements = {};
+
+EncryptedArray::EncryptedArray(const mpz_class & x, unsigned int max_degree, unsigned int degree) noexcept :
   _degree(degree),
   _max_degree(max_degree)
 {
+    // ASSERT(degree >= 1, "Degree must be at least 1");
+
     set_public_element(x);
 }
 
-bool HomomorphicArray::operator==(const HomomorphicArray & other) const noexcept
+bool EncryptedArray::operator==(const EncryptedArray & other) const noexcept
 {
     return (_elements == other._elements)
         && (*_public_element_ptr == *other._public_element_ptr);
 }
 
-void HomomorphicArray::set_public_element(const mpz_class & x) noexcept
+void EncryptedArray::set_public_element(const mpz_class & x) noexcept
 {
     auto result = public_elements.emplace(x);
     _public_element_ptr = result.first;
+    _initialized = true;
 }
 
-HomomorphicArray & HomomorphicArray::operator^=(const HomomorphicArray & other) noexcept
+EncryptedArray &
+EncryptedArray::operator^=(const PlaintextArray & other) noexcept
 {
-    // If this is constructed from plaintext (therefore, noiseless), use public element from rhs
-    const auto & public_element = (_degree == 0) ? *other._public_element_ptr : *_public_element_ptr;
+    ASSERT(_initialized, "EncryptedArray must be initialized");
+
+    const auto & public_element = *_public_element_ptr;
+
+    const size_t n = min(_elements.size(), other._elements.size());
+
+    // Do natural arithmetic operation modulo public element
+    for (size_t i = 0; i < n; ++i) {
+        _elements[i] += other._elements[i];
+        _elements[i] %= public_element;
+    }
+
+    // If sizes don't match pad with zeros from the right
+    for (size_t i = n; i < other._elements.size(); ++i) {
+        _elements.push_back(other._elements[i]);
+    }
+
+    return *this;
+}
+
+EncryptedArray &
+EncryptedArray::operator^=(const EncryptedArray & other) noexcept
+{
+    ASSERT(_initialized, "EncryptedArray must be initialized");
+
+    const auto & public_element = *_public_element_ptr;
 
     _degree = max(_degree, other._degree);
 
@@ -104,10 +132,35 @@ HomomorphicArray & HomomorphicArray::operator^=(const HomomorphicArray & other) 
     return *this;
 }
 
-HomomorphicArray & HomomorphicArray::operator&=(const HomomorphicArray & other) noexcept
+EncryptedArray &
+EncryptedArray::operator&=(const PlaintextArray & other) noexcept
 {
-    // If this is constructed from plaintext (therefore, noiseless), use public element from rhs
-    const auto & public_element = (_degree == 0) ? *other._public_element_ptr : *_public_element_ptr;
+    ASSERT(_initialized, "EncryptedArray must be initialized");
+
+    const auto & public_element = *_public_element_ptr;
+
+    const size_t n = min(_elements.size(), other._elements.size());
+
+    // Do natural arithmetic operation modulo public element
+    for (size_t i = 0; i < n; ++i) {
+        _elements[i] *= other._elements[i];
+        _elements[i] %= public_element;
+    }
+
+    // If sizes don't match pad with ones from the right
+    for (size_t i = n; i < other._elements.size(); ++i) {
+        _elements.push_back(other._elements[i]);
+    }
+
+    return *this;
+}
+
+EncryptedArray &
+EncryptedArray::operator&=(const EncryptedArray & other) noexcept
+{
+    ASSERT(_initialized, "EncryptedArray must be initialized");
+
+    const auto & public_element = *_public_element_ptr;
 
     _degree = _degree + other._degree;
 
@@ -127,14 +180,111 @@ HomomorphicArray & HomomorphicArray::operator&=(const HomomorphicArray & other) 
     return *this;
 }
 
-const HomomorphicArray HomomorphicArray::equal(const std::vector<HomomorphicArray> & arrays) const
+
+const PlaintextArray
+PlaintextArray::equal(const std::vector<PlaintextArray> & arrays) const noexcept
 {
-    ASSERT(arrays.size() > 0, "Empty input");
+    ASSERT(arrays.size() > 0, "Input array must not be empty");
 
-    // If this is constructed from plaintext (therefore, noiseless), use public element from first rhs array
-    const auto & public_element = (_degree == 0) ? *(arrays.front()._public_element_ptr) : *_public_element_ptr;
+    PlaintextArray result {};
 
-    HomomorphicArray result(public_element, _max_degree, 0);
+    for (const auto & array : arrays) {
+
+        // Find difference (xor) between this and array
+        const auto difference = *this ^ array;
+
+        // Multiply (and) all elements of the difference array + 1
+        // The result will decrypt to 1 iff all elements of this and array are equal
+        bool all = 1;
+        for (const auto & element : difference._elements)
+        {
+            all &= (element ^ 1);
+        }
+
+        result._elements.push_back(all);
+    }
+
+    return result;
+}
+
+const EncryptedArray
+PlaintextArray::equal(const std::vector<EncryptedArray> & arrays) const noexcept
+{
+    ASSERT(arrays.size() > 0, "Input array must not be empty");
+
+    const auto & public_element = arrays.front().public_element();
+
+    EncryptedArray result( arrays.front().public_element()
+                         , arrays.front().max_degree()
+                         , arrays.front().degree()
+                         );
+
+    for (const auto & array : arrays) {
+
+        // Find difference (xor) between this and array
+        const auto difference = array ^ *this;
+
+        // Multiply (and) all elements of the difference array + 1
+        // The result will decrypt to 1 iff all elements of this and array are equal
+        mpz_class all = 1;
+        for (const auto & element : difference._elements)
+        {
+            all *= (element + 1);
+            all %= public_element;
+        }
+
+        result._elements.push_back(all);
+
+        // Set result degree to maximum degree of arrays
+        auto current_degree = difference._degree * difference._elements.size();
+        if (current_degree > result._degree) {
+            result._degree = current_degree;
+        }
+    }
+
+    return result;
+}
+
+const EncryptedArray
+EncryptedArray::equal(const std::vector<PlaintextArray> & arrays) const noexcept
+{
+    ASSERT(_initialized, "EncryptedArray must be initialized");
+    ASSERT(arrays.size() > 0, "Input array must not be empty");
+
+    const auto & public_element = *_public_element_ptr;
+
+    EncryptedArray result(public_element, _max_degree, _degree);
+
+    for (const auto & array : arrays) {
+
+        // Find difference (xor) between this and array
+        const auto difference = *this ^ array;
+
+        // Multiply (and) all elements of the difference array + 1
+        // The result will decrypt to 1 iff all elements of this and array are equal
+        mpz_class all = 1;
+        for (const auto & element : difference._elements)
+        {
+            all *= (element + 1);
+            all %= public_element;
+        }
+
+        result._elements.push_back(all);
+    }
+
+    return result;
+}
+
+
+const EncryptedArray
+EncryptedArray::equal(const std::vector<EncryptedArray> & arrays) const noexcept
+{
+    ASSERT(_initialized, "EncryptedArray must be initialized");
+    ASSERT(arrays.size() > 0, "Input array must not be empty");
+
+    const auto & public_element = *_public_element_ptr;
+
+    EncryptedArray result(public_element, _max_degree);
 
     for (const auto & array : arrays) {
 
@@ -162,20 +312,99 @@ const HomomorphicArray HomomorphicArray::equal(const std::vector<HomomorphicArra
     return result;
 }
 
-const HomomorphicArray HomomorphicArray::select(const std::vector<HomomorphicArray> & arrays) const
+const PlaintextArray
+PlaintextArray::select(const std::vector<PlaintextArray> & arrays) const noexcept
 {
-    ASSERT(arrays.size() > 0, "Empty input");
+    ASSERT(arrays.size() > 0, "Input array must not be empty");
 
-    // If this is constructed from plaintext (therefore, noiseless), use public element from first rhs array
-    const auto & public_element = (_degree == 0) ? *(arrays.front()._public_element_ptr) : *_public_element_ptr;
-    HomomorphicArray result(public_element, _max_degree);
+    PlaintextArray result {};
 
     for (size_t i = 0; i < min(_elements.size(), arrays.size()); ++i) {
 
-        HomomorphicArray selected(public_element, _max_degree);
+        PlaintextArray selected {};
 
         // Multiply i-th element of this by all of the elements in array
-        // The result will be decrypt to either original array or to array of zeros
+        // The result will be decrypted to either original array or to array of zeros
+        for (const auto & selected_element : arrays[i]._elements) {
+            selected._elements.push_back(selected_element & _elements[i]);
+        }
+
+        result ^= selected;
+    }
+
+    return result;
+}
+
+const EncryptedArray
+PlaintextArray::select(const std::vector<EncryptedArray> & arrays) const noexcept
+{
+    ASSERT(arrays.size() > 0, "Input array must not be empty");
+
+    const auto & public_element = arrays.front().public_element();
+
+    EncryptedArray result( arrays.front().public_element()
+                         , arrays.front().max_degree()
+                         , arrays.front().degree()
+                         );
+
+    for (size_t i = 0; i < min(_elements.size(), arrays.size()); ++i) {
+
+        EncryptedArray selected(public_element, result._max_degree, arrays[i]._degree);
+
+        // Multiply i-th element of this by all of the elements in array
+        // The result will be decrypted to either original array or to array of zeros
+        for (const auto & selected_element : arrays[i]._elements) {
+            selected._elements.push_back((selected_element * _elements[i]) % public_element);
+        }
+
+        result ^= selected;
+    }
+
+    return result;
+}
+
+const EncryptedArray
+EncryptedArray::select(const std::vector<PlaintextArray> & arrays) const noexcept
+{
+    ASSERT(_initialized, "EncryptedArray must be initialized");
+    ASSERT(arrays.size() > 0, "Input array must not be empty");
+
+    const auto & public_element = *_public_element_ptr;
+
+    EncryptedArray result(public_element, _max_degree, _degree);
+
+    for (size_t i = 0; i < min(_elements.size(), arrays.size()); ++i) {
+
+        EncryptedArray selected(public_element, _max_degree, _degree);
+
+        // Multiply i-th element of this by all of the elements in array
+        // The result will be decrypted to either original array or to array of zeros
+        for (const auto & selected_element : arrays[i]._elements) {
+            selected._elements.push_back(selected_element * _elements[i]);
+        }
+
+        result ^= selected;
+    }
+
+    return result;
+}
+
+const EncryptedArray
+EncryptedArray::select(const std::vector<EncryptedArray> & arrays) const noexcept
+{
+    ASSERT(_initialized, "EncryptedArray must be initialized");
+    ASSERT(arrays.size() > 0, "Input array must not be empty");
+
+    const auto & public_element = *_public_element_ptr;
+
+    EncryptedArray result(public_element, _max_degree);
+
+    for (size_t i = 0; i < min(_elements.size(), arrays.size()); ++i) {
+
+        EncryptedArray selected(public_element, _max_degree);
+
+        // Multiply i-th element of this by all of the elements in array
+        // The result will be decrypted to either original array or to array of zeros
         for (const auto & selected_element : arrays[i]._elements) {
             selected._elements.push_back((selected_element * _elements[i]) % public_element);
         }
@@ -188,8 +417,11 @@ const HomomorphicArray HomomorphicArray::select(const std::vector<HomomorphicArr
     return result;
 }
 
-HomomorphicArray & HomomorphicArray::extend(const HomomorphicArray & other) noexcept
+EncryptedArray &
+EncryptedArray::extend(const EncryptedArray & other) noexcept
 {
+    ASSERT(_initialized, "EncryptedArray must be initialized");
+
     for (const auto & element : other._elements) {
         _elements.push_back(element);
     }
@@ -199,11 +431,20 @@ HomomorphicArray & HomomorphicArray::extend(const HomomorphicArray & other) noex
     return *this;
 }
 
-HomomorphicArray sum(const vector<HomomorphicArray> & arrays)
+const mpz_class &
+EncryptedArray::public_element() const noexcept
 {
-    ASSERT(arrays.size() > 0, "Empty input");
+    ASSERT(_initialized, "EncryptedArray must be initialized");
 
-    HomomorphicArray result(arrays[0].public_element(), arrays[0].max_degree(), 0);
+    return *_public_element_ptr;
+}
+
+PlaintextArray
+sum(const vector<PlaintextArray> & arrays) noexcept
+{
+    ASSERT(arrays.size() > 0, "Input array must not be empty");
+
+    PlaintextArray result {};
 
     for (const auto & array : arrays) {
         result ^= array;
@@ -212,11 +453,29 @@ HomomorphicArray sum(const vector<HomomorphicArray> & arrays)
     return result;
 }
 
-HomomorphicArray product(const vector<HomomorphicArray> & arrays)
+EncryptedArray
+sum(const vector<EncryptedArray> & arrays) noexcept
 {
-    ASSERT(arrays.size() > 0, "Empty input");
+    ASSERT(arrays.size() > 0, "Input array must not be empty");
 
-    HomomorphicArray result(arrays.front().public_element(), arrays.front().max_degree(), 0);
+    EncryptedArray result( arrays.front().public_element()
+                         , arrays.front().max_degree()
+                         , arrays.front().degree()
+                         );
+
+    for (const auto & array : arrays) {
+        result ^= array;
+    }
+
+    return result;
+}
+
+PlaintextArray
+product(const vector<PlaintextArray> & arrays) noexcept
+{
+    ASSERT(arrays.size() > 0, "Input array must not be empty");
+
+    PlaintextArray result {};
 
     for (const auto & array : arrays) {
         result &= array;
@@ -225,14 +484,85 @@ HomomorphicArray product(const vector<HomomorphicArray> & arrays)
     return result;
 }
 
-HomomorphicArray concat(const vector<HomomorphicArray> & arrays)
+EncryptedArray
+product(const vector<EncryptedArray> & arrays) noexcept
 {
-    ASSERT(arrays.size() > 0, "Empty input");
+    ASSERT(arrays.size() > 0, "Input array must not be empty");
 
-    HomomorphicArray result(arrays.front().public_element(), arrays.front().max_degree(), 0);
+    EncryptedArray result( arrays.front().public_element()
+                         , arrays.front().max_degree()
+                         , 0);
+
+    for (const auto & array : arrays) {
+        result &= array;
+    }
+
+    return result;
+}
+
+PlaintextArray
+concat(const vector<PlaintextArray> & arrays) noexcept
+{
+    ASSERT(arrays.size() > 0, "Input array must not be empty");
+
+    PlaintextArray result {};
 
     for (const auto & array : arrays) {
         result.extend(array);
+    }
+
+    return result;
+}
+
+EncryptedArray
+concat(const vector<EncryptedArray> & arrays) noexcept
+{
+    ASSERT(arrays.size() > 0, "Input array must not be empty");
+
+    EncryptedArray result( arrays.front().public_element()
+                         , arrays.front().max_degree()
+                         , arrays.front().degree()
+                         );
+
+    for (const auto & array : arrays) {
+        result.extend(array);
+    }
+
+    return result;
+}
+
+CompressedCiphertext::CompressedCiphertext(const ParameterSet & params) noexcept :
+  _parameter_set(params)
+{
+    initialize_oracle();
+}
+
+void CompressedCiphertext::initialize_oracle() const noexcept
+{
+    _oracle.reset(new RandomOracle{_parameter_set.ciphertext_size_bits, _parameter_set.oracle_seed});
+}
+
+bool CompressedCiphertext::operator==(const CompressedCiphertext & other) const noexcept
+{
+    return (_parameter_set == other._parameter_set)
+        && (_public_element_delta == other._public_element_delta)
+        && (_elements_deltas == other._elements_deltas);
+}
+
+EncryptedArray CompressedCiphertext::expand() const noexcept
+{
+    _oracle->reset();
+
+    // Restore public element
+    const auto & oracle_output = _oracle->next();
+    const auto public_element = oracle_output - _public_element_delta;
+
+    EncryptedArray result(public_element, _parameter_set.degree());
+
+    // Restore ciphertext elements
+    for (const auto & delta : _elements_deltas) {
+        const auto & oracle_output = _oracle->next();
+        result._elements.push_back(oracle_output - delta);
     }
 
     return result;

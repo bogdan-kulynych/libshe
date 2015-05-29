@@ -96,8 +96,8 @@ const ParameterSet params = ParameterSet::generate_parameter_set(62, 1, 42);
 
 Given these parameters, the encryption scheme exhibits following properties:
 
-   - Security level is medium (62-bit)
-   - At least 1 multiplication can be evaluated on every bit in plaintext
+   - Security level is medium **(62-bit)**
+   - At least 1 multiplication can be evaluated on every bit in the ciphertext
    - The non-secure random number generator used in ciphertext compression is seeded with number 42
 
 Client then constructs a private key object from generated parameters:
@@ -125,7 +125,7 @@ Executes the algorithm (here negation of an 8-bit input)
 
 ```cpp
 const vector<bool> another_plaintext = {1, 1, 1, 1, 1, 1, 1, 1};
-const auto response = ciphertext ^ HomomorphicArray(another_plaintext);
+const auto response = ciphertext ^ another_plaintext;
 ```
 
 Serializes the output and sends it back to the client.

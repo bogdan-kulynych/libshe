@@ -61,7 +61,7 @@ public:
 
 
 class CompressedCiphertext;
-class HomomorphicArray;
+class EncryptedArray;
 
 class PrivateKey : boost::equality_comparable<PrivateKey>
 {
@@ -76,7 +76,7 @@ class PrivateKey : boost::equality_comparable<PrivateKey>
     CompressedCiphertext encrypt(const std::vector<bool> & bits) const noexcept;
 
     // Decrypt an expanded ciphertext
-    std::vector<bool> decrypt(const HomomorphicArray &) const noexcept;
+    std::vector<bool> decrypt(const EncryptedArray &) const noexcept;
 
     const ParameterSet & parameter_set() const noexcept { return _parameter_set; };
     const mpz_class & private_element() const noexcept { return _private_element; }

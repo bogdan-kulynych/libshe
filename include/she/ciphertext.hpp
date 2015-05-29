@@ -6,6 +6,7 @@
 #include <memory>
 
 #include <boost/operators.hpp>
+#include <boost/variant/variant.hpp>
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/vector.hpp>
@@ -21,36 +22,105 @@
 namespace she
 {
 
-class HomomorphicArray : boost::equality_comparable<HomomorphicArray,
-                         boost::xorable<HomomorphicArray,
-                         boost::andable<HomomorphicArray
-                         > > >
+class PlaintextArray;
+class EncryptedArray;
+
+
+class PlaintextArray : boost::equality_comparable<PlaintextArray
+                     , boost::xorable<PlaintextArray
+                     , boost::andable<PlaintextArray
+                     > > >
 {
- friend class CompressedCiphertext;
+ friend class EncryptedArray;
  public:
     // Construct from plaintext
-    explicit HomomorphicArray(std::vector<bool> plaintext) noexcept;
-
-    // Construct empty ciphertext with given public element
-    HomomorphicArray(const mpz_class & x, unsigned int max_degree, unsigned int degree=1) noexcept;
+    PlaintextArray(const std::vector<bool> & plaintext) noexcept : _elements(plaintext) {}
 
     // Empty ctor for deserialization purposes
-    HomomorphicArray() noexcept {};
+    PlaintextArray() noexcept {};
 
-    // Homomorphic element-wise addition (XOR)
-    HomomorphicArray & operator^=(const HomomorphicArray &) noexcept;
+    // Convert to bits
+    operator const std::vector<bool>() const { return _elements; };
+    operator std::vector<bool>() { return _elements; };
 
-    // Homomorphic element-wise multiplication (AND)
-    HomomorphicArray & operator&=(const HomomorphicArray &) noexcept;
+    // Element-wise addition (XOR)
+    PlaintextArray & operator^=(const PlaintextArray &) noexcept;
+
+    // Element-wise multiplication (AND)
+    PlaintextArray & operator&=(const PlaintextArray &) noexcept;
 
     // Homomorphic equality comparison
-    const HomomorphicArray equal(const std::vector<HomomorphicArray> &) const;
+    const PlaintextArray equal(const std::vector<PlaintextArray> &) const noexcept;
+    const EncryptedArray equal(const std::vector<EncryptedArray> &) const noexcept;
 
     // Homomorphic select function
-    const HomomorphicArray select(const std::vector<HomomorphicArray> &) const;
+    const PlaintextArray select(const std::vector<PlaintextArray> &) const noexcept;
+    const EncryptedArray select(const std::vector<EncryptedArray> &) const noexcept;
 
     // Extend array
-    HomomorphicArray & extend(const HomomorphicArray & other) noexcept;
+    PlaintextArray & extend(const PlaintextArray & other) noexcept;
+
+    // EncryptedArray compatibility
+    unsigned int degree() const noexcept { return 0; }
+    unsigned int max_degree() const noexcept { return 0; }
+
+    // Ciphertext size
+    size_t size() const noexcept { return _elements.size(); }
+
+    // Encrypted bits
+    const std::vector<bool>& elements() const noexcept { return _elements; }
+    std::vector<bool>& elements() noexcept { return _elements; }
+
+    // Representation comparison
+    bool operator==(const PlaintextArray &) const noexcept;
+
+ private:
+    friend class boost::serialization::access;
+
+    std::vector<bool> _elements;
+
+    template<class Archive>
+    void serialize(Archive & ar, unsigned int const version) const
+    {
+        ar & BOOST_SERIALIZATION_NVP(_elements);
+    }
+};
+
+
+class EncryptedArray : boost::equality_comparable<EncryptedArray
+                     , boost::xorable<EncryptedArray
+                     , boost::xorable<EncryptedArray, PlaintextArray
+                     , boost::andable<EncryptedArray
+                     , boost::andable<EncryptedArray, PlaintextArray
+                     > > > > >
+{
+ friend class PlaintextArray;
+ friend class CompressedCiphertext;
+ public:
+    // Construct empty ciphertext with given public element
+    EncryptedArray(const mpz_class & x, unsigned int max_degree, unsigned int degree=1) noexcept;
+
+    // Empty ctor for deserialization purposes
+    EncryptedArray() noexcept {};
+
+    // Homomorphic element-wise addition (XOR)
+    EncryptedArray & operator^=(const PlaintextArray &) noexcept;
+    EncryptedArray & operator^=(const EncryptedArray &) noexcept;
+
+    // Homomorphic element-wise multiplication (AND)
+    EncryptedArray & operator&=(const PlaintextArray &) noexcept;
+    EncryptedArray & operator&=(const EncryptedArray &) noexcept;
+
+    // Homomorphic equality comparison
+    const EncryptedArray equal(const std::vector<PlaintextArray> &) const noexcept;
+    const EncryptedArray equal(const std::vector<EncryptedArray> &) const noexcept;
+
+    // Homomorphic select function
+    const EncryptedArray select(const std::vector<PlaintextArray> &) const noexcept;
+    const EncryptedArray select(const std::vector<EncryptedArray> &) const noexcept;
+
+    // Extend array
+    EncryptedArray & extend(const EncryptedArray & other) noexcept;
 
     // Reflects how noisy the ciphertexts, equals the number of homomorphic multiplications performed since encryption
     unsigned int degree() const noexcept { return _degree; }
@@ -66,10 +136,10 @@ class HomomorphicArray : boost::equality_comparable<HomomorphicArray,
     std::vector<mpz_class>& elements() noexcept { return _elements; }
 
     // Public element used in homomorphic operations
-    const mpz_class & public_element() const noexcept { return *_public_element_ptr; }
+    const mpz_class & public_element() const noexcept;
 
     // Representation comparison (non-homomorphic)
-    bool operator==(const HomomorphicArray &) const noexcept;
+    bool operator==(const EncryptedArray &) const noexcept;
 
  private:
     unsigned int _degree;
@@ -80,6 +150,8 @@ class HomomorphicArray : boost::equality_comparable<HomomorphicArray,
     void set_public_element(const mpz_class & x) noexcept;
     static std::set<mpz_class> public_elements;
     typename std::set<mpz_class>::const_iterator _public_element_ptr;
+
+    bool _initialized;
 
  private:
     friend class boost::serialization::access;
@@ -110,13 +182,16 @@ class HomomorphicArray : boost::equality_comparable<HomomorphicArray,
 };
 
 // Homomorphic addition (XOR)
-HomomorphicArray sum(const std::vector<HomomorphicArray> &);
+PlaintextArray sum(const std::vector<PlaintextArray> &) noexcept;
+EncryptedArray sum(const std::vector<EncryptedArray> &) noexcept;
 
 // Homomorphic multiplication (AND)
-HomomorphicArray product(const std::vector<HomomorphicArray> &);
+PlaintextArray product(const std::vector<PlaintextArray> &) noexcept;
+EncryptedArray product(const std::vector<EncryptedArray> &) noexcept;
 
-// Ciphertexts concatenation
-HomomorphicArray concat(const std::vector<HomomorphicArray> &);
+// Arrays concatenation
+PlaintextArray concat(const std::vector<PlaintextArray> &) noexcept;
+EncryptedArray concat(const std::vector<EncryptedArray> &) noexcept;
 
 
 class CompressedCiphertext : boost::equality_comparable<CompressedCiphertext>
@@ -127,7 +202,7 @@ class CompressedCiphertext : boost::equality_comparable<CompressedCiphertext>
     CompressedCiphertext() noexcept {};
 
     // Expand ciphertext
-    HomomorphicArray expand() const noexcept;
+    EncryptedArray expand() const noexcept;
 
     // Ciphertext size
     size_t size() const noexcept { return _elements_deltas.size(); }

@@ -16,7 +16,8 @@ using boost::archive::text_iarchive;
 using she::ParameterSet;
 using she::PrivateKey;
 using she::CompressedCiphertext;
-using she::HomomorphicArray;
+using she::EncryptedArray;
+using she::PlaintextArray;
 
 
 BOOST_AUTO_TEST_SUITE(WorkflowSuite)
@@ -30,7 +31,7 @@ BOOST_AUTO_TEST_CASE(sfe_simulation)
 
     // ----------- CLIENT ----------------------------------------------
     {
-        const auto params = ParameterSet::generate_parameter_set(62, 1, 42);
+        const auto params = ParameterSet::generate_parameter_set(22, 1, 42);
 
         // Generate private key
         sk = new PrivateKey(params);
@@ -51,11 +52,11 @@ BOOST_AUTO_TEST_CASE(sfe_simulation)
         ia1 >> received_compressed_ciphertext;
 
         // Expand the ciphertext to perform operations
-        const HomomorphicArray ciphertext = received_compressed_ciphertext.expand();
+        const auto ciphertext = received_compressed_ciphertext.expand();
 
         // Execute some algorithm
         const vector<bool> another_plaintext = {1, 1, 1, 1};
-        const auto response = ciphertext ^ HomomorphicArray(another_plaintext);
+        const auto response = ciphertext ^ PlaintextArray(another_plaintext);
 
         // Serialize result
         text_oarchive oa2(ss2);
@@ -65,7 +66,7 @@ BOOST_AUTO_TEST_CASE(sfe_simulation)
     // ----------- CLIENT ----------------------------------------------
 
     {
-        HomomorphicArray received_response;
+        EncryptedArray received_response;
         text_iarchive ia2(ss2);
         ia2 >> received_response;
 
