@@ -140,6 +140,12 @@ assert(decrypted_response == expected_result);
 
 Note that ciphertext can be compressed only during encryption on the client side, so cost for Server → Client communication is significantly higher than that of Client → Server communication.
 
+### Available homomorphic operations
+
+- Bitwise addition (XOR): `c1 ^ c2`
+- Bitwise multiplication (AND): `c1 & c2`
+- Equality comparison: `c0.equal({c1, c2, ..., cn})`..
+- Selection of _i_-th ciphertext: `c0.select({c1, c2, ..., cn})`.
 
 ## License
 
