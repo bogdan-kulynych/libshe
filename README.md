@@ -32,7 +32,7 @@ _Warning_. This is experimental software. **It is not to be used in mission-crit
 - [x] CI and coverage reports
 - [x] Installation
 - [ ] Timing and memory estimates
-- [ ] Comparison with [HElib](https://github.com/shaih/HElib)
+- [ ] Multiple backends support
 - [ ] Documentation
 - [ ] Additional homomorphic operations
 
