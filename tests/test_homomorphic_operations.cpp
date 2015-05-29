@@ -1,5 +1,6 @@
-#include <cmath>
-
+#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE HomomorphicOperationsModule
+#include <cstddef>
 #include <boost/test/unit_test.hpp>
 
 #include "she.hpp"

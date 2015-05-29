@@ -1,5 +1,6 @@
-#include <sstream>
-
+#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE SerializationsModule
+#include <cstddef>
 #include <boost/test/unit_test.hpp>
 
 #include <gmpxx.h>
