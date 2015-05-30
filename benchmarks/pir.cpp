@@ -152,7 +152,7 @@ int main()
     cout << "Security:      " << security << endl;
     cout << "Database size: " << database_size << endl;
     cout << "Record size:   " << record_size << endl;
-    cout << "Index size:    " << record_size << endl << endl;
+    cout << "Index size:    " << index_size << endl << endl;
 
     // Preparation: Generate random database
     vector<PlaintextArray> database;
