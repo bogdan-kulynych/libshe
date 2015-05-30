@@ -31,8 +31,10 @@ _Warning_. This is experimental software. **It is not to be used in mission-crit
 
 - [x] CI and coverage reports
 - [x] Installation
+- [X] Benchmarks
 - [ ] Timing and memory estimates
-- [ ] Multiple backends support
+- [ ] Performance tweaking
+- [ ] HElib backend support
 - [ ] Documentation
 - [ ] Additional homomorphic operations
 
@@ -48,7 +50,7 @@ You can consult the `.travis.yml` for concrete installation commands on Debian-b
 - [GMP](https://gmplib.org/) >= 6.0.0
 - [lcov](http://ltp.sourceforge.net/coverage/lcov/readme.php) >= 1.11 (optional)
 
-### Building
+### Building and installation
 
 Build and install `libshe.so` library and headers:
 
@@ -56,6 +58,16 @@ Build and install `libshe.so` library and headers:
 make
 sudo make install
 ```
+
+You can also uninstall with
+
+```
+sudo make uninstall
+```
+
+## Usage
+
+### Tests and benchmarks
 
 Run tests:
 
@@ -65,10 +77,14 @@ make tests
 
 _Note_. Running tests will compile sources with debug options. Do `make clean` before installing if tests were run previously.
 
+Run benchmarks:
 
-## Usage
+```
+make benchmarks
+```
 
-### Building
+
+### Building your program
 
 Use C++11 and link against _GMP_ and _Boost Serialization_ when building your program:
 
