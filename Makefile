@@ -65,7 +65,8 @@ $(LIBOBJECTS): $(BUILDDIR)/%.o: %.cpp
 .PHONY: tests
 tests: CXXFLAGS += -O0 -DDEBUG -g --coverage
 tests: LDFLAGS = --coverage
-tests: $(LIBOBJECTS)
+tests: $(LIBSOURCES)
+tests: $(TESTSOURCES)
 tests: $(TESTTARGETS)
 
 $(TESTTARGETS): $(LIBOBJECTS)
@@ -91,7 +92,8 @@ coverage:
 # Benchmarks
 
 .PHONY: benchmarks
-benchmarks: $(LIBOBJECTS)
+benchmarks: $(LIBSOURCES)
+benchmarks: $(BENCHSOURCES)
 benchmarks: $(BENCHTARGETS)
 	$(foreach exe,$<,@echo "$(EXEC): $(exe)" && ./$(exe) $(TESTOPTS)${\n})
 
