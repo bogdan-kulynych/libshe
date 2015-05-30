@@ -39,6 +39,7 @@ BOOST_AUTO_TEST_CASE(plaintext_array_implicit_conversions)
     BOOST_CHECK(array == raw_plaintext);
 }
 
+// FIXME: The commented code doesn't compile, but it should
 BOOST_AUTO_TEST_CASE_TEMPLATE(plaintext_array_serialization, Format, Formats)
 {
     const vector<bool> plaintext = {1, 0, 1, 0, 1, 1, 1, 1};
