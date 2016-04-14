@@ -128,7 +128,7 @@ Encrypts the plaintext:
 
 ```cpp
 const vector<bool> plaintext = {1, 0, 1, 0, 1, 0, 1, 0};
-const auto compressed_ciphertext = sk.encrypt();
+const auto compressed_ciphertext = sk.encrypt(plaintext);
 ```
 
 Serializes and sends compressed ciphertext to server.
