@@ -24,7 +24,7 @@ namespace she
       noise_size_bits(rho),
       private_key_size_bits(eta),
       ciphertext_size_bits(gamma),
-      oracle_seed(seed)
+      prf_seed(seed)
     {
         ASSERT((gamma >= eta) && (eta >= rho) && (rho > 0), "Bad parameters");
     }
@@ -34,7 +34,7 @@ namespace she
       noise_size_bits(1),
       private_key_size_bits(1),
       ciphertext_size_bits(1),
-      oracle_seed(1)
+      prf_seed(1)
     {}
 
     const ParameterSet
@@ -57,7 +57,7 @@ namespace she
             && (noise_size_bits == other.noise_size_bits)
             && (private_key_size_bits == other.private_key_size_bits)
             && (ciphertext_size_bits == other.ciphertext_size_bits)
-            && (oracle_seed == other.oracle_seed);
+            && (prf_seed == other.prf_seed);
     }
 
 
@@ -95,29 +95,30 @@ namespace she
     void PrivateKey::initialize_random_generators() const noexcept
     {
         _generator.reset(new CSPRNG);
-        _oracle.reset(new RandomOracle{_parameter_set.ciphertext_size_bits, _parameter_set.oracle_seed});
+        _prf_stream.reset(
+            new PseudoRandomStream{_parameter_set.ciphertext_size_bits, _parameter_set.prf_seed});
     }
 
     CompressedCiphertext PrivateKey::encrypt(const std::vector<bool> & bits) const noexcept
     {
-        _oracle->reset();
+        _prf_stream->reset();
 
         CompressedCiphertext result(_parameter_set);
 
         // Generate compressed public element
-        const mpz_class & oracle_output = _oracle->next();
-        result._public_element_delta = oracle_output % _private_element;
+        const mpz_class & prf_output = _prf_stream->next();
+        result._public_element_delta = prf_output % _private_element;
 
         for (const bool m : bits)
         {
             // Choose random noise
             const mpz_class r = _generator->get_range_bits(_parameter_set.noise_size_bits) + 1;
 
-            // Random oracle output
-            const mpz_class & oracle_output = _oracle->next();
+            // Random PRF output
+            const mpz_class & prf_output = _prf_stream->next();
 
             // Add compressed ciphertext deltas
-            result._elements_deltas.push_back((oracle_output - 2*r - m) % _private_element);
+            result._elements_deltas.push_back((prf_output - 2*r - m) % _private_element);
         }
 
         return result;
@@ -125,7 +126,7 @@ namespace she
 
     vector<bool> PrivateKey::decrypt(const EncryptedArray & array) const noexcept
     {
-        _oracle->reset();
+        _prf_stream->reset();
 
         vector<bool> result;
         for (const mpz_class & element : array.elements())

@@ -25,7 +25,7 @@ public:
                  unsigned int noise_size_bits,
                  unsigned int private_key_size_bits,
                  unsigned int ciphertext_size_bits,
-                 unsigned int oracle_seed);
+                 unsigned int prf_seed);
 
     ParameterSet() noexcept;
 
@@ -33,9 +33,9 @@ public:
     unsigned int noise_size_bits;
     unsigned int private_key_size_bits;
     unsigned int ciphertext_size_bits;
-    unsigned int oracle_seed;
+    unsigned int prf_seed;
 
-    // Generate parameter set for given `security`, random oracle `seed`, that allows to perform at least
+    // Generate parameter set for given `security`, random prf `seed`, that allows to perform at least
     // `circuit_mult_size homomorphic multiplications on ciphertexts
     static const ParameterSet
     generate_parameter_set(unsigned int security, unsigned int circuit_mult_size, unsigned int seed);
@@ -55,7 +55,7 @@ public:
         ar & BOOST_SERIALIZATION_NVP(noise_size_bits);
         ar & BOOST_SERIALIZATION_NVP(private_key_size_bits);
         ar & BOOST_SERIALIZATION_NVP(ciphertext_size_bits);
-        ar & BOOST_SERIALIZATION_NVP(oracle_seed);
+        ar & BOOST_SERIALIZATION_NVP(prf_seed);
     }
 };
 
@@ -88,7 +88,7 @@ class PrivateKey : boost::equality_comparable<PrivateKey>
 
     void initialize_random_generators() const noexcept;
     mutable std::unique_ptr<CSPRNG> _generator;
-    mutable std::unique_ptr<RandomOracle> _oracle;
+    mutable std::unique_ptr<PseudoRandomStream> _prf_stream;
 
     PrivateKey& generate_values() noexcept;
     mpz_class _private_element;

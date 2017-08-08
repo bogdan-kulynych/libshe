@@ -144,8 +144,8 @@ class CompressedCiphertext : boost::equality_comparable<CompressedCiphertext>
 
     ParameterSet _parameter_set;
 
-    void initialize_oracle() const noexcept;
-    mutable std::unique_ptr<RandomOracle> _oracle;
+    void initialize_prf_stream() const noexcept;
+    mutable std::unique_ptr<PseudoRandomStream> _prf_stream;
 
     std::vector<mpz_class> _elements_deltas;
     mpz_class _public_element_delta;
@@ -168,7 +168,7 @@ class CompressedCiphertext : boost::equality_comparable<CompressedCiphertext>
         ar & BOOST_SERIALIZATION_NVP(_elements_deltas);
         ar & BOOST_SERIALIZATION_NVP(_public_element_delta);
 
-        initialize_oracle();
+        initialize_prf_stream();
     }
 
     BOOST_SERIALIZATION_SPLIT_MEMBER()

@@ -486,12 +486,13 @@ concat(const vector<EncryptedArray> & arrays) noexcept
 CompressedCiphertext::CompressedCiphertext(const ParameterSet & params) noexcept :
   _parameter_set(params)
 {
-    initialize_oracle();
+    initialize_prf_stream();
 }
 
-void CompressedCiphertext::initialize_oracle() const noexcept
+void CompressedCiphertext::initialize_prf_stream() const noexcept
 {
-    _oracle.reset(new RandomOracle{_parameter_set.ciphertext_size_bits, _parameter_set.oracle_seed});
+    _prf_stream.reset(
+        new PseudoRandomStream{_parameter_set.ciphertext_size_bits, _parameter_set.prf_seed});
 }
 
 bool CompressedCiphertext::operator==(const CompressedCiphertext & other) const noexcept
@@ -503,18 +504,18 @@ bool CompressedCiphertext::operator==(const CompressedCiphertext & other) const 
 
 EncryptedArray CompressedCiphertext::expand() const noexcept
 {
-    _oracle->reset();
+    _prf_stream->reset();
 
     // Restore public element
-    const auto & oracle_output = _oracle->next();
-    const auto public_element = oracle_output - _public_element_delta;
+    const auto & prf_output = _prf_stream->next();
+    const auto public_element = prf_output - _public_element_delta;
 
     EncryptedArray result(public_element, _parameter_set.degree());
 
     // Restore ciphertext elements
     for (const auto & delta : _elements_deltas) {
-        const auto & oracle_output = _oracle->next();
-        result._elements.push_back(oracle_output - delta);
+        const auto & prf_output = _prf_stream->next();
+        result._elements.push_back(prf_output - delta);
     }
 
     return result;

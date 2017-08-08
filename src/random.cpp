@@ -41,7 +41,7 @@ CSPRNG::get_range(const mpz_class & upper_bound) const noexcept
 }
 
 
-RandomOracle::RandomOracle(unsigned int size, unsigned int seed) :
+PseudoRandomStream::PseudoRandomStream(unsigned int size, unsigned int seed) :
   _size(size),
   _seed(seed),
   _generator(gmp_randinit_default),
@@ -50,12 +50,12 @@ RandomOracle::RandomOracle(unsigned int size, unsigned int seed) :
     _generator.seed(seed);
 }
 
-map<RandomOracle::keys_t, RandomOracle::values_t> RandomOracle::cached_values = {};
+map<PseudoRandomStream::keys_t, PseudoRandomStream::values_t> PseudoRandomStream::cached_values = {};
 
-const mpz_class & RandomOracle::next() const noexcept
+const mpz_class & PseudoRandomStream::next() const noexcept
 {
     keys_t context{_size, _seed};
-    auto it = RandomOracle::cached_values.find(context);
+    auto it = PseudoRandomStream::cached_values.find(context);
 
     if (it != cached_values.end()) {
         if (it->second.size() <= _current_value) {
@@ -68,7 +68,7 @@ const mpz_class & RandomOracle::next() const noexcept
     return cached_values[context][_current_value++];
 }
 
-const void RandomOracle::reset() const noexcept
+const void PseudoRandomStream::reset() const noexcept
 {
     _current_value = 0;
 }

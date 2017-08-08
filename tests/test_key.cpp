@@ -33,7 +33,7 @@ BOOST_AUTO_TEST_CASE(parameter_set_construction)
         BOOST_CHECK_EQUAL(params.noise_size_bits, 100);
         BOOST_CHECK_EQUAL(params.private_key_size_bits, 1000);
         BOOST_CHECK_EQUAL(params.ciphertext_size_bits, 100000);
-        BOOST_CHECK_EQUAL(params.oracle_seed, 5);
+        BOOST_CHECK_EQUAL(params.prf_seed, 5);
     }
 }
 

@@ -25,10 +25,10 @@ class CSPRNG
 };
 
 
-class RandomOracle
+class PseudoRandomStream
 {
  public:
-    RandomOracle(unsigned int size, unsigned int seed);
+    PseudoRandomStream(unsigned int size, unsigned int seed);
 
     const mpz_class & next() const noexcept;
     const void reset() const noexcept;
