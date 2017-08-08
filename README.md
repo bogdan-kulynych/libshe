@@ -2,12 +2,12 @@
 
 [![Build Status](https://travis-ci.org/bogdan-kulynych/libshe.svg?branch=master)](https://travis-ci.org/bogdan-kulynych/libshe) [![Coverage Status](https://coveralls.io/repos/bogdan-kulynych/libshe/badge.svg?branch=master)](https://coveralls.io/r/bogdan-kulynych/libshe?branch=master)
 
-Symmetric somewhat homomorphic encryption library.
+Symmetric somewhat homomorphic encryption library based on DGHV scheme.
 
 
 ## Introduction
 
-Fully homomorphic encryption is a kind of encryption that allows to execute functions over the ciphertexts without decrypting them. This library implements a symmetric variant of originally asymmetric somewhat homomorphic encryption scheme over the integers by van Dijk et al. [DGHV10][DGHV10] using ciphertext compression techniques from [CNT11][CNT11]. The symmetricity of the scheme means that only the private key is used to encrypt and decrypt ciphertexts. A relatively small public element, however, is used in homomorphic operations, but it is not a real public key.
+Homomorphic encryption is a kind of encryption that allows to execute functions over the ciphertexts without decrypting them. This library implements a symmetric variant of originally asymmetric somewhat homomorphic encryption scheme over the integers by van Dijk et al. [DGHV10][DGHV10] using ciphertext compression techniques from [CNT11][CNT11]. The symmetricity of the scheme means that only the private key is used to encrypt and decrypt ciphertexts. A relatively small public element, however, is used in homomorphic operations, but it is not a real public key.
 
 Such scheme is useful in secure function evaluation setting, where a client encrypts an input to an algorithm using their private key, sends it to a server which executes an algorithm homorphically, and sends the output back to the client. The client then obtains the output of the algorithm by decrypting server response using the private key.
 
@@ -20,24 +20,10 @@ See the following diagram for visual explanation.
 
 ![SFE](misc/sfe.png)
 
-See [technical report][Kul15] (draft) for details.
-
 
 ## Status
 
-_Warning_. This is experimental software. **It is not to be used in mission-critical applications.**
-
-### Roadmap
-
-- [x] CI and coverage reports
-- [x] Installation
-- [X] Benchmarks
-- [ ] Timing and memory estimates
-- [ ] Performance tweaking
-- [ ] HElib backend support
-- [ ] Documentation
-- [ ] Additional homomorphic operations
-
+_Warning_. This is experimental software. **It is not to be used in mission-critical applications.** Since the time this software was written, parameters of the underlying scheme were broken many times.
 
 ## Installation
 
@@ -83,7 +69,6 @@ Run benchmarks:
 make benchmarks
 ```
 
-
 ### Building your program
 
 Use C++11 and link against _GMP_ and _Boost Serialization_ when building your program:
@@ -114,7 +99,7 @@ const ParameterSet params = ParameterSet::generate_parameter_set(62, 1, 42);
 
 Given these parameters, the encryption scheme exhibits following properties:
 
-   - Security level is medium **(62-bit)**
+   - Security level is **(62-bit)**
    - At least 1 multiplication can be evaluated on every bit in the ciphertext
    - The non-secure random number generator used in ciphertext compression is seeded with number 42
 
@@ -175,4 +160,3 @@ Copyright © 2015 Bogdan Kulynych. `hello [at] bogdankulynych.me`
 
 [DGHV10]: http://eprint.iacr.org/2009/616.pdf
 [CNT11]: http://eprint.iacr.org/2011/440.pdf
-[Kul15]: http://bogdankulynych.me/papers/vdghv.pdf
